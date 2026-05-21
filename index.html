@@ -1,1729 +1,538 @@
-/* ==========================================================================
-   NextGen Airways - Premium Style Sheet (Vanilla CSS)
-   ========================================================================== */
-
-/* Design Tokens & Theme Variables */
-:root {
-    --bg-primary: #0a0b10;
-    --bg-secondary: #11131e;
-    --bg-card: rgba(25, 28, 48, 0.45);
-    --border-color: rgba(255, 255, 255, 0.07);
-    --border-hover: rgba(255, 255, 255, 0.15);
-    
-    /* Neon gradients & Brand Colors */
-    --primary-grad: linear-gradient(135deg, #a855f7 0%, #06b6d4 100%);
-    --accent-grad: linear-gradient(135deg, #ec4899 0%, #8b5cf6 100%);
-    --card-glow-grad: radial-gradient(800px circle at var(--x, 0) var(--y, 0), rgba(255, 255, 255, 0.06), transparent 40%);
-    
-    --primary-color: #a855f7;
-    --cyan-color: #06b6d4;
-    --accent-color: #ec4899;
-    --gold-color: #f59e0b;
-    --danger-color: #ef4444;
-    --success-color: #10b981;
-    
-    /* Typography */
-    --font-heading: 'Outfit', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-    --font-body: 'Space Grotesk', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-    
-    --transition-smooth: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    --glass-blur: blur(20px);
-    --card-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
-}
-
-/* Base Styles */
-* {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-}
-
-body {
-    background-color: var(--bg-primary);
-    color: #f3f4f6;
-    font-family: var(--font-body);
-    font-size: 0.95rem;
-    line-height: 1.5;
-    overflow-x: hidden;
-    min-height: 100vh;
-}
-
-h1, h2, h3, h4, h5, h6 {
-    font-family: var(--font-heading);
-    font-weight: 700;
-    color: #ffffff;
-    letter-spacing: -0.02em;
-}
-
-/* App Container Layout */
-.app-container {
-    display: flex;
-    min-height: 100vh;
-    width: 100vw;
-}
-
-/* Sidebar Styling */
-.sidebar {
-    width: 280px;
-    background-color: var(--bg-secondary);
-    border-right: 1px solid var(--border-color);
-    display: flex;
-    flex-direction: column;
-    flex-shrink: 0;
-    z-index: 100;
-    position: relative;
-}
-
-.logo-area {
-    padding: 2.5rem 2rem;
-    display: flex;
-    align-items: center;
-    gap: 0.75rem;
-    position: relative;
-    overflow: hidden;
-}
-
-.logo-glow {
-    position: absolute;
-    width: 120px;
-    height: 120px;
-    background: var(--primary-grad);
-    filter: blur(40px);
-    opacity: 0.15;
-    top: -40px;
-    left: -40px;
-    pointer-events: none;
-}
-
-.logo-icon {
-    font-size: 2rem;
-    color: var(--cyan-color);
-}
-
-.logo-text {
-    display: flex;
-    flex-direction: column;
-}
-
-.logo-main {
-    font-family: var(--font-heading);
-    font-size: 1.5rem;
-    font-weight: 800;
-    line-height: 1.1;
-    background: var(--primary-grad);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-}
-
-.logo-sub {
-    font-size: 0.75rem;
-    text-transform: uppercase;
-    letter-spacing: 0.25em;
-    color: rgba(255, 255, 255, 0.4);
-    font-weight: 600;
-}
-
-.nav-menu {
-    flex: 1;
-    padding: 1rem;
-    display: flex;
-    flex-direction: column;
-    gap: 0.5rem;
-}
-
-.nav-item {
-    display: flex;
-    align-items: center;
-    gap: 1rem;
-    padding: 1rem 1.25rem;
-    color: rgba(255, 255, 255, 0.6);
-    text-decoration: none;
-    border-radius: 12px;
-    font-weight: 500;
-    transition: var(--transition-smooth);
-    border: 1px solid transparent;
-}
-
-.nav-item i {
-    width: 20px;
-    height: 20px;
-    transition: var(--transition-smooth);
-}
-
-.nav-item:hover {
-    color: #ffffff;
-    background-color: rgba(255, 255, 255, 0.03);
-    border-color: rgba(255, 255, 255, 0.05);
-}
-
-.nav-item.active {
-    color: #ffffff;
-    background: var(--primary-grad);
-    box-shadow: 0 4px 20px rgba(168, 85, 247, 0.25);
-    font-weight: 600;
-}
-
-.nav-item.active i {
-    transform: translateX(2px);
-}
-
-.sidebar-footer {
-    padding: 1.5rem;
-    border-top: 1px solid var(--border-color);
-}
-
-.system-status {
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-    font-size: 0.8rem;
-    color: rgba(255, 255, 255, 0.5);
-}
-
-.status-indicator {
-    width: 8px;
-    height: 8px;
-    border-radius: 50%;
-}
-
-.status-indicator.online {
-    background-color: var(--success-color);
-    box-shadow: 0 0 10px var(--success-color);
-}
-
-/* Main Content Area */
-.main-content {
-    flex: 1;
-    padding: 2.5rem;
-    overflow-y: auto;
-    max-height: 100vh;
-    display: flex;
-    flex-direction: column;
-    gap: 2.5rem;
-}
-
-/* Top Header */
-.top-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 0.5rem;
-}
-
-.header-search {
-    position: relative;
-    width: 320px;
-}
-
-.header-search i {
-    position: absolute;
-    left: 1rem;
-    top: 50%;
-    transform: translateY(-50%);
-    color: rgba(255, 255, 255, 0.4);
-    width: 18px;
-    height: 18px;
-}
-
-.header-search input {
-    width: 100%;
-    padding: 0.75rem 1rem 0.75rem 2.7rem;
-    background: rgba(255, 255, 255, 0.03);
-    border: 1px solid var(--border-color);
-    border-radius: 12px;
-    color: #ffffff;
-    font-family: var(--font-body);
-    transition: var(--transition-smooth);
-}
-
-.header-search input:focus {
-    outline: none;
-    border-color: var(--primary-color);
-    box-shadow: 0 0 15px rgba(168, 85, 247, 0.15);
-    background: rgba(255, 255, 255, 0.05);
-}
-
-.header-profile {
-    display: flex;
-    align-items: center;
-    gap: 1.5rem;
-}
-
-.notification-bell {
-    position: relative;
-    cursor: pointer;
-    color: rgba(255, 255, 255, 0.7);
-    transition: var(--transition-smooth);
-}
-
-.notification-bell:hover {
-    color: #ffffff;
-}
-
-.bell-badge {
-    position: absolute;
-    top: -2px;
-    right: -2px;
-    width: 8px;
-    height: 8px;
-    background-color: var(--accent-color);
-    border-radius: 50%;
-    box-shadow: 0 0 8px var(--accent-color);
-}
-
-.avatar {
-    width: 40px;
-    height: 40px;
-    border-radius: 50%;
-    background: var(--primary-grad);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-weight: 700;
-    font-size: 0.9rem;
-    color: #ffffff;
-    box-shadow: 0 4px 15px rgba(6, 182, 212, 0.3);
-}
-
-/* Views Management */
-.content-view {
-    display: none;
-    animation: fadeIn 0.4s ease-out forwards;
-}
-
-.content-view.active {
-    display: flex;
-    flex-direction: column;
-    gap: 2.5rem;
-}
-
-@keyframes fadeIn {
-    from {
-        opacity: 0;
-        transform: translateY(12px);
-    }
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
-}
-
-/* Welcome Banner */
-.welcome-banner {
-    position: relative;
-    border-radius: 24px;
-    overflow: hidden;
-    padding: 3.5rem 3rem;
-    background: linear-gradient(115deg, #181a2e 0%, #0d0f1a 100%);
-    border: 1px solid var(--border-color);
-    box-shadow: var(--card-shadow);
-}
-
-.banner-overlay {
-    position: absolute;
-    top: 0;
-    right: 0;
-    width: 50%;
-    height: 100%;
-    background: radial-gradient(circle at right, rgba(6, 182, 212, 0.15) 0%, rgba(168, 85, 247, 0.15) 40%, transparent 70%);
-    pointer-events: none;
-}
-
-.banner-content {
-    position: relative;
-    max-width: 600px;
-    display: flex;
-    flex-direction: column;
-    gap: 1rem;
-    align-items: flex-start;
-}
-
-.welcome-banner h1 {
-    font-size: 3rem;
-    background: linear-gradient(to right, #ffffff, #d1d5db);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    line-height: 1.1;
-}
-
-.welcome-banner p {
-    color: rgba(255, 255, 255, 0.6);
-    font-size: 1.1rem;
-    line-height: 1.6;
-}
-
-/* Buttons */
-.btn {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.6rem;
-    padding: 0.8rem 1.75rem;
-    border-radius: 12px;
-    font-family: var(--font-body);
-    font-size: 0.95rem;
-    font-weight: 600;
-    cursor: pointer;
-    transition: var(--transition-smooth);
-    border: 1px solid transparent;
-}
-
-.btn-primary {
-    background: var(--primary-grad);
-    color: #ffffff;
-    box-shadow: 0 4px 20px rgba(168, 85, 247, 0.35);
-}
-
-.btn-primary:hover:not(:disabled) {
-    box-shadow: 0 6px 25px rgba(168, 85, 247, 0.5);
-    transform: translateY(-2px);
-}
-
-.btn-secondary {
-    background: rgba(255, 255, 255, 0.05);
-    border-color: var(--border-color);
-    color: #ffffff;
-}
-
-.btn-secondary:hover:not(:disabled) {
-    background: rgba(255, 255, 255, 0.08);
-    border-color: var(--border-hover);
-    transform: translateY(-2px);
-}
-
-.btn-danger {
-    background: linear-gradient(135deg, var(--danger-color) 0%, #b91c1c 100%);
-    color: #ffffff;
-    box-shadow: 0 4px 20px rgba(239, 68, 68, 0.25);
-}
-
-.btn-danger:hover:not(:disabled) {
-    box-shadow: 0 6px 25px rgba(239, 68, 68, 0.4);
-    transform: translateY(-2px);
-}
-
-.btn-accent {
-    background: var(--accent-grad);
-    color: #ffffff;
-    box-shadow: 0 4px 20px rgba(236, 72, 153, 0.3);
-}
-
-.btn-accent:hover:not(:disabled) {
-    box-shadow: 0 6px 25px rgba(236, 72, 153, 0.45);
-    transform: translateY(-2px);
-}
-
-.btn:disabled {
-    opacity: 0.4;
-    cursor: not-allowed;
-}
-
-/* Metrics Cards Grid */
-.metrics-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-    gap: 1.5rem;
-}
-
-.metric-card {
-    position: relative;
-    background: var(--bg-card);
-    backdrop-filter: var(--glass-blur);
-    border: 1px solid var(--border-color);
-    border-radius: 20px;
-    padding: 1.5rem 1.75rem;
-    display: flex;
-    align-items: center;
-    gap: 1.25rem;
-    overflow: hidden;
-    box-shadow: var(--card-shadow);
-    transition: var(--transition-smooth);
-}
-
-.metric-card:hover {
-    border-color: var(--border-hover);
-    transform: translateY(-4px);
-    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.5);
-}
-
-.card-glow {
-    position: absolute;
-    width: 250px;
-    height: 250px;
-    background: var(--card-glow-grad);
-    pointer-events: none;
-    top: -50px;
-    left: -50px;
-}
-
-.metric-icon {
-    width: 48px;
-    height: 48px;
-    border-radius: 12px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    color: #ffffff;
-    font-size: 1.25rem;
-}
-
-.metric-icon.purple { background: rgba(168, 85, 247, 0.15); color: var(--primary-color); border: 1px solid rgba(168, 85, 247, 0.25); }
-.metric-icon.cyan { background: rgba(6, 182, 212, 0.15); color: var(--cyan-color); border: 1px solid rgba(6, 182, 212, 0.25); }
-.metric-icon.gold { background: rgba(245, 158, 11, 0.15); color: var(--gold-color); border: 1px solid rgba(245, 158, 11, 0.25); }
-.metric-icon.pink { background: rgba(236, 72, 153, 0.15); color: var(--accent-color); border: 1px solid rgba(236, 72, 153, 0.25); }
-
-.metric-info h3 {
-    font-size: 0.85rem;
-    color: rgba(255, 255, 255, 0.55);
-    font-weight: 500;
-    margin-bottom: 0.25rem;
-}
-
-.metric-info p {
-    font-size: 1.75rem;
-    font-family: var(--font-heading);
-    font-weight: 800;
-    color: #ffffff;
-}
-
-/* Dashboard Data Grid & Cards */
-.dashboard-grid {
-    display: grid;
-    grid-template-columns: 2fr 1fr;
-    gap: 1.5rem;
-}
-
-.grid-card {
-    background: var(--bg-card);
-    backdrop-filter: var(--glass-blur);
-    border: 1px solid var(--border-color);
-    border-radius: 24px;
-    padding: 2rem;
-    box-shadow: var(--card-shadow);
-    display: flex;
-    flex-direction: column;
-    gap: 1.5rem;
-    position: relative;
-    overflow: hidden;
-}
-
-.grid-card h2 {
-    font-size: 1.3rem;
-    font-weight: 700;
-    position: relative;
-}
-
-/* Tables Styling */
-.table-container {
-    overflow-x: auto;
-    width: 100%;
-}
-
-.data-table {
-    width: 100%;
-    border-collapse: collapse;
-    text-align: left;
-}
-
-.data-table th, .data-table td {
-    padding: 1rem 1.25rem;
-    border-bottom: 1px solid var(--border-color);
-}
-
-.data-table th {
-    font-family: var(--font-heading);
-    font-weight: 600;
-    font-size: 0.85rem;
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
-    color: rgba(255, 255, 255, 0.5);
-}
-
-.data-table td {
-    color: rgba(255, 255, 255, 0.8);
-    font-size: 0.9rem;
-}
-
-.data-table tbody tr:hover td {
-    background-color: rgba(255, 255, 255, 0.02);
-    color: #ffffff;
-}
-
-/* Status Badges */
-.status-badge {
-    display: inline-flex;
-    align-items: center;
-    padding: 0.25rem 0.75rem;
-    border-radius: 9999px;
-    font-size: 0.75rem;
-    font-weight: 600;
-    text-transform: uppercase;
-}
-
-.status-badge.on-time { background: rgba(16, 185, 129, 0.12); color: var(--success-color); border: 1px solid rgba(16, 185, 129, 0.2); }
-.status-badge.delayed { background: rgba(245, 158, 11, 0.12); color: var(--gold-color); border: 1px solid rgba(245, 158, 11, 0.2); }
-.status-badge.boarding { background: rgba(6, 182, 212, 0.12); color: var(--cyan-color); border: 1px solid rgba(6, 182, 212, 0.2); }
-
-/* Progress bars for Popularity chart */
-.custom-progress-list {
-    display: flex;
-    flex-direction: column;
-    gap: 1.25rem;
-}
-
-.progress-item {
-    display: flex;
-    flex-direction: column;
-    gap: 0.4rem;
-}
-
-.progress-label-row {
-    display: flex;
-    justify-content: space-between;
-    font-size: 0.85rem;
-}
-
-.progress-name {
-    font-weight: 500;
-    color: rgba(255, 255, 255, 0.85);
-}
-
-.progress-pct {
-    color: var(--cyan-color);
-    font-weight: 600;
-}
-
-.progress-bar-bg {
-    height: 8px;
-    background: rgba(255, 255, 255, 0.05);
-    border-radius: 4px;
-    overflow: hidden;
-}
-
-.progress-bar-fill {
-    height: 100%;
-    background: var(--primary-grad);
-    border-radius: 4px;
-    width: 0;
-    transition: width 1s cubic-bezier(0.4, 0, 0.2, 1);
-}
-
-/* Stepper Wizard Styling */
-.stepper {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 1rem 2rem;
-    background: rgba(255, 255, 255, 0.02);
-    border: 1px solid var(--border-color);
-    border-radius: 16px;
-    margin-bottom: 0.5rem;
-}
-
-.step {
-    display: flex;
-    align-items: center;
-    gap: 0.75rem;
-    opacity: 0.4;
-    transition: var(--transition-smooth);
-}
-
-.step.active {
-    opacity: 1;
-}
-
-.step.completed {
-    opacity: 0.8;
-}
-
-.step-num {
-    width: 32px;
-    height: 32px;
-    border-radius: 50%;
-    border: 2px solid rgba(255, 255, 255, 0.3);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-weight: 700;
-    font-size: 0.9rem;
-    transition: var(--transition-smooth);
-}
-
-.step.active .step-num {
-    border-color: var(--primary-color);
-    background: var(--primary-color);
-    color: #ffffff;
-    box-shadow: 0 0 12px rgba(168, 85, 247, 0.4);
-}
-
-.step.completed .step-num {
-    border-color: var(--success-color);
-    background: var(--success-color);
-    color: #ffffff;
-}
-
-.step-label {
-    font-family: var(--font-heading);
-    font-weight: 600;
-    font-size: 0.95rem;
-}
-
-.step-connector {
-    flex: 1;
-    height: 2px;
-    background: rgba(255, 255, 255, 0.08);
-    margin: 0 1.5rem;
-    border-radius: 1px;
-}
-
-.step-connector.completed {
-    background: var(--primary-grad);
-}
-
-/* Wizard Steps Wrapper */
-.wizard-container {
-    position: relative;
-    min-height: 400px;
-}
-
-.wizard-step {
-    display: none;
-    animation: fadeIn 0.4s ease-out forwards;
-    flex-direction: column;
-    gap: 2rem;
-}
-
-.wizard-step.active {
-    display: flex;
-}
-
-.wizard-buttons {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    border-top: 1px solid var(--border-color);
-    padding-top: 2rem;
-    margin-top: 1rem;
-}
-
-/* Form Styles */
-.form-grid {
-    display: grid;
-    grid-template-columns: repeat(2, 1fr);
-    gap: 1.5rem;
-}
-
-.full-width {
-    grid-column: span 2;
-}
-
-.form-group {
-    display: flex;
-    flex-direction: column;
-    gap: 0.5rem;
-}
-
-.form-group label {
-    font-family: var(--font-heading);
-    font-weight: 500;
-    font-size: 0.9rem;
-    color: rgba(255, 255, 255, 0.75);
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-}
-
-.form-group label i {
-    width: 16px;
-    height: 16px;
-    color: var(--cyan-color);
-}
-
-.form-group input, .form-group select {
-    padding: 0.9rem 1.25rem;
-    background: rgba(255, 255, 255, 0.03);
-    border: 1px solid var(--border-color);
-    border-radius: 12px;
-    color: #ffffff;
-    font-family: var(--font-body);
-    font-size: 0.95rem;
-    transition: var(--transition-smooth);
-}
-
-.form-group input::placeholder {
-    color: rgba(255, 255, 255, 0.25);
-}
-
-.form-group input:focus, .form-group select:focus {
-    outline: none;
-    border-color: var(--primary-color);
-    box-shadow: 0 0 15px rgba(168, 85, 247, 0.15);
-    background: rgba(255, 255, 255, 0.05);
-}
-
-.form-group input.invalid, .form-group select.invalid {
-    border-color: var(--danger-color);
-    box-shadow: 0 0 15px rgba(239, 68, 68, 0.1);
-}
-
-.error-msg {
-    color: var(--danger-color);
-    font-size: 0.8rem;
-    font-weight: 500;
-    min-height: 1.2rem;
-    display: block;
-    margin-top: 0.2rem;
-}
-
-.form-hint {
-    color: rgba(255, 255, 255, 0.35);
-    font-size: 0.78rem;
-}
-
-/* Stepper Step 2: Country Selection Cards */
-.destination-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-    gap: 1.5rem;
-}
-
-.dest-card {
-    background: var(--bg-card);
-    border: 1px solid var(--border-color);
-    border-radius: 20px;
-    padding: 2rem;
-    cursor: pointer;
-    transition: var(--transition-smooth);
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 1.25rem;
-    text-align: center;
-    position: relative;
-    overflow: hidden;
-}
-
-.dest-card:hover {
-    border-color: var(--cyan-color);
-    transform: translateY(-5px);
-    box-shadow: 0 8px 30px rgba(6, 182, 212, 0.15);
-}
-
-.dest-card.selected {
-    border-color: var(--primary-color);
-    background: rgba(168, 85, 247, 0.08);
-    box-shadow: 0 8px 30px rgba(168, 85, 247, 0.2);
-}
-
-.dest-card i {
-    width: 42px;
-    height: 42px;
-    color: var(--cyan-color);
-    transition: var(--transition-smooth);
-}
-
-.dest-card.selected i {
-    color: var(--primary-color);
-    transform: scale(1.1) rotate(15deg);
-}
-
-.dest-card h4 {
-    font-size: 1.25rem;
-    font-weight: 700;
-}
-
-.dest-card p {
-    font-size: 0.85rem;
-    color: rgba(255, 255, 255, 0.5);
-    line-height: 1.4;
-}
-
-/* Flights List Sub-panel */
-.flights-selection-panel {
-    background: rgba(255, 255, 255, 0.02);
-    border: 1px solid var(--border-color);
-    border-radius: 20px;
-    padding: 2rem;
-    display: flex;
-    flex-direction: column;
-    gap: 1.5rem;
-    animation: fadeIn 0.3s ease-out;
-}
-
-.hidden {
-    display: none !important;
-}
-
-.flights-list {
-    display: flex;
-    flex-direction: column;
-    gap: 1rem;
-}
-
-.flight-option-card {
-    background: rgba(255, 255, 255, 0.02);
-    border: 1px solid var(--border-color);
-    border-radius: 16px;
-    padding: 1.25rem 1.5rem;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    cursor: pointer;
-    transition: var(--transition-smooth);
-}
-
-.flight-option-card:hover {
-    border-color: var(--border-hover);
-    background: rgba(255, 255, 255, 0.04);
-}
-
-.flight-option-card.selected {
-    border-color: var(--primary-color);
-    background: rgba(168, 85, 247, 0.05);
-}
-
-.flight-meta {
-    display: flex;
-    align-items: center;
-    gap: 2rem;
-}
-
-.flight-code-box {
-    display: flex;
-    flex-direction: column;
-}
-
-.flight-code {
-    font-family: var(--font-heading);
-    font-weight: 800;
-    font-size: 1.2rem;
-    color: #ffffff;
-}
-
-.flight-duration {
-    font-size: 0.8rem;
-    color: rgba(255, 255, 255, 0.4);
-}
-
-.flight-schedule {
-    display: flex;
-    flex-direction: column;
-    gap: 0.2rem;
-}
-
-.flight-datetime {
-    font-weight: 500;
-    color: rgba(255, 255, 255, 0.9);
-}
-
-.flight-route {
-    font-size: 0.8rem;
-    color: rgba(255, 255, 255, 0.5);
-    display: flex;
-    align-items: center;
-    gap: 0.4rem;
-}
-
-.flight-fare {
-    display: flex;
-    flex-direction: column;
-    align-items: flex-end;
-}
-
-.fare-amount {
-    font-family: var(--font-heading);
-    font-size: 1.3rem;
-    font-weight: 800;
-    color: var(--cyan-color);
-}
-
-.fare-tax {
-    font-size: 0.75rem;
-    color: rgba(255, 255, 255, 0.4);
-}
-
-/* Stepper Step 3: Interactive Seat Map */
-.seat-layout-grid {
-    display: grid;
-    grid-template-columns: 1.7fr 1fr;
-    gap: 2rem;
-    align-items: flex-start;
-}
-
-.cabin-container {
-    background: rgba(255, 255, 255, 0.01);
-    border: 1px solid var(--border-color);
-    border-radius: 28px;
-    padding: 2.5rem 1.5rem;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    position: relative;
-    max-width: 500px;
-    margin: 0 auto;
-}
-
-.aircraft-cockpit {
-    width: 240px;
-    height: 80px;
-    background: linear-gradient(to bottom, rgba(255, 255, 255, 0.05), rgba(255, 255, 255, 0.02));
-    border: 2px solid var(--border-color);
-    border-bottom: none;
-    border-radius: 120px 120px 0 0;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    margin-bottom: 2rem;
-    position: relative;
-}
-
-.cockpit-text {
-    font-family: var(--font-heading);
-    font-size: 0.8rem;
-    text-transform: uppercase;
-    letter-spacing: 0.1em;
-    color: rgba(255, 255, 255, 0.3);
-}
-
-.aircraft-cabin {
-    width: 100%;
-    display: flex;
-    flex-direction: column;
-    gap: 1.5rem;
-}
-
-.seat-legend {
-    display: flex;
-    justify-content: center;
-    gap: 1.5rem;
-    padding-bottom: 1.5rem;
-    border-bottom: 1px solid var(--border-color);
-}
-
-.legend-item {
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-    font-size: 0.8rem;
-    color: rgba(255, 255, 255, 0.6);
-}
-
-.legend-box {
-    width: 14px;
-    height: 14px;
-    border-radius: 4px;
-}
-
-.legend-box.available { background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.15); }
-.legend-box.selected { background: var(--primary-color); border: 1px solid var(--primary-color); box-shadow: 0 0 8px rgba(168, 85, 247, 0.5); }
-.legend-box.occupied { background: rgba(255, 255, 255, 0.1); border: 1px solid transparent; cursor: not-allowed; position: relative; }
-.legend-box.occupied::after { content: '×'; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); color: rgba(255, 255, 255, 0.3); font-size: 10px; }
-
-.seat-map {
-    display: flex;
-    flex-direction: column;
-    gap: 0.6rem;
-}
-
-.seat-row {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    gap: 0.5rem;
-}
-
-.row-num {
-    width: 24px;
-    text-align: center;
-    font-size: 0.8rem;
-    color: rgba(255, 255, 255, 0.3);
-    font-weight: 600;
-}
-
-.seat-group {
-    display: flex;
-    gap: 0.4rem;
-}
-
-.seat {
-    width: 34px;
-    height: 34px;
-    border-radius: 8px;
-    font-family: var(--font-body);
-    font-size: 0.75rem;
-    font-weight: 600;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    cursor: pointer;
-    transition: var(--transition-smooth);
-}
-
-.seat.available {
-    background: rgba(255, 255, 255, 0.04);
-    border: 1px solid rgba(255, 255, 255, 0.12);
-    color: rgba(255, 255, 255, 0.7);
-}
-
-.seat.available:hover {
-    border-color: var(--cyan-color);
-    background: rgba(6, 182, 212, 0.08);
-    color: #ffffff;
-    transform: scale(1.08);
-}
-
-.seat.selected {
-    background: var(--primary-grad);
-    border: 1px solid transparent;
-    color: #ffffff;
-    box-shadow: 0 0 12px rgba(168, 85, 247, 0.5);
-    transform: scale(1.05);
-}
-
-.seat.occupied {
-    background: rgba(255, 255, 255, 0.08);
-    border: 1px solid transparent;
-    color: rgba(255, 255, 255, 0.15);
-    cursor: not-allowed;
-}
-
-.seat-aisle {
-    width: 32px;
-}
-
-.seat-details-panel {
-    background: var(--bg-card);
-    border: 1px solid var(--border-color);
-    border-radius: 20px;
-    padding: 2rem;
-    display: flex;
-    flex-direction: column;
-    gap: 1.5rem;
-}
-
-.selected-details-box {
-    background: rgba(255, 255, 255, 0.02);
-    border: 1px solid var(--border-color);
-    border-radius: 12px;
-    padding: 1.25rem;
-    display: flex;
-    flex-direction: column;
-    gap: 1rem;
-}
-
-.info-row {
-    display: flex;
-    justify-content: space-between;
-    font-size: 0.9rem;
-}
-
-.info-row span {
-    color: rgba(255, 255, 255, 0.5);
-}
-
-.info-row strong {
-    color: #ffffff;
-}
-
-.text-glow {
-    text-shadow: 0 0 10px rgba(6, 182, 212, 0.5);
-    color: var(--cyan-color) !important;
-}
-
-.seat-info-note {
-    font-size: 0.8rem;
-    color: rgba(255, 255, 255, 0.4);
-    display: flex;
-    align-items: flex-start;
-    gap: 0.5rem;
-    line-height: 1.4;
-}
-
-.seat-info-note i {
-    width: 16px;
-    height: 16px;
-    flex-shrink: 0;
-    color: var(--gold-color);
-}
-
-/* Stepper Step 4: E-Ticket Boarding Pass View */
-.ticket-celebration {
-    text-align: center;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 0.5rem;
-}
-
-.success-icon {
-    font-size: 3rem;
-    color: var(--success-color);
-    margin-bottom: 0.5rem;
-    width: 54px;
-    height: 54px;
-}
-
-/* Boarding Pass Component */
-.boarding-pass {
-    width: 100%;
-    max-width: 780px;
-    margin: 2rem auto;
-    background: #111322;
-    border-radius: 20px;
-    overflow: hidden;
-    box-shadow: 0 15px 40px rgba(0, 0, 0, 0.5);
-    border: 2px solid rgba(255, 255, 255, 0.08);
-    display: flex;
-    flex-direction: column;
-    position: relative;
-}
-
-.boarding-pass::before, .boarding-pass::after {
-    content: '';
-    position: absolute;
-    width: 24px;
-    height: 24px;
-    background: var(--bg-primary);
-    border-radius: 50%;
-    top: 50%;
-    transform: translateY(-50%);
-    z-index: 10;
-}
-
-.boarding-pass::before { left: -12px; border-right: 1px solid rgba(255, 255, 255, 0.08); }
-.boarding-pass::after { right: -12px; border-left: 1px solid rgba(255, 255, 255, 0.08); }
-
-.pass-header {
-    background: linear-gradient(90deg, #1c1d31 0%, #151628 100%);
-    padding: 1.25rem 2rem;
-    border-bottom: 2px dashed rgba(255, 255, 255, 0.08);
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-}
-
-.pass-logo {
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-    color: #ffffff;
-    font-weight: 700;
-    font-family: var(--font-heading);
-}
-
-.pass-logo i {
-    color: var(--cyan-color);
-}
-
-.pass-class {
-    font-family: var(--font-heading);
-    font-weight: 800;
-    font-size: 0.85rem;
-    letter-spacing: 0.2em;
-    color: var(--primary-color);
-    background: rgba(168, 85, 247, 0.1);
-    padding: 0.3rem 0.8rem;
-    border-radius: 6px;
-    border: 1px solid rgba(168, 85, 247, 0.2);
-}
-
-.pass-body {
-    display: grid;
-    grid-template-columns: 2.2fr 1fr;
-    min-height: 200px;
-}
-
-.pass-col-main {
-    padding: 2rem;
-    display: flex;
-    flex-direction: column;
-    justify-content: space-between;
-    gap: 1.5rem;
-    border-right: 2px dashed rgba(255, 255, 255, 0.08);
-}
-
-.pass-col-stub {
-    padding: 2rem;
-    background: #0f101d;
-    display: flex;
-    flex-direction: column;
-    justify-content: space-between;
-    gap: 1rem;
-}
-
-.stub-header {
-    font-family: var(--font-heading);
-    font-size: 0.75rem;
-    font-weight: 700;
-    text-transform: uppercase;
-    color: rgba(255, 255, 255, 0.3);
-    letter-spacing: 0.1em;
-}
-
-.row {
-    display: flex;
-    justify-content: space-between;
-    gap: 1rem;
-}
-
-.info-block {
-    display: flex;
-    flex-direction: column;
-    gap: 0.25rem;
-}
-
-.info-block.align-right {
-    text-align: right;
-    align-items: flex-end;
-}
-
-.info-block .label {
-    font-size: 0.7rem;
-    color: rgba(255, 255, 255, 0.35);
-    font-weight: 600;
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
-}
-
-.info-block .value {
-    font-family: var(--font-heading);
-    font-size: 1.05rem;
-    font-weight: 700;
-    color: #ffffff;
-}
-
-.value.stub-small {
-    font-size: 0.9rem;
-}
-
-/* Barcode Simulation */
-.barcode-area {
-    display: flex;
-    flex-direction: column;
-    gap: 0.25rem;
-    align-items: center;
-    margin-top: 0.5rem;
-}
-
-.barcode {
-    width: 100%;
-    height: 48px;
-    background: repeating-linear-gradient(
-        90deg,
-        #ffffff,
-        #ffffff 2px,
-        #000000 2px,
-        #000000 4px,
-        #ffffff 4px,
-        #ffffff 5px,
-        #000000 5px,
-        #000000 7px
-    );
-    border-radius: 4px;
-    opacity: 0.85;
-}
-
-.barcode-text {
-    font-family: monospace;
-    font-size: 0.65rem;
-    color: rgba(255, 255, 255, 0.35);
-    letter-spacing: 0.1em;
-}
-
-/* Manage Bookings View */
-.cancellation-grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 2rem;
-    align-items: flex-start;
-}
-
-.search-input-group {
-    display: flex;
-    gap: 0.5rem;
-    margin-top: 0.5rem;
-}
-
-.search-input-group input {
-    flex: 1;
-}
-
-.ticket-summary-box {
-    background: rgba(255, 255, 255, 0.01);
-    border: 1px solid var(--border-color);
-    border-radius: 16px;
-    padding: 1.5rem;
-    display: flex;
-    flex-direction: column;
-    gap: 1rem;
-    margin-top: 1rem;
-}
-
-.summary-row {
-    display: flex;
-    justify-content: space-between;
-    font-size: 0.95rem;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.03);
-    padding-bottom: 0.6rem;
-}
-
-.summary-row:last-child {
-    border-bottom: none;
-    padding-bottom: 0;
-}
-
-.summary-row span {
-    color: rgba(255, 255, 255, 0.5);
-}
-
-.summary-row strong {
-    color: #ffffff;
-}
-
-.action-buttons-row {
-    display: flex;
-    gap: 1rem;
-}
-
-.mt-4 { margin-top: 1.5rem; }
-.text-muted { color: rgba(255, 255, 255, 0.3); }
-.text-center { text-align: center; }
-
-/* Custom Modal Dialog Backdrop */
-.custom-dialog-backdrop {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100vw;
-    height: 100vh;
-    background: rgba(0, 0, 0, 0.7);
-    backdrop-filter: blur(8px);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    z-index: 1000;
-    animation: fadeIn 0.25s ease-out;
-}
-
-.custom-dialog {
-    background: #121422;
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    border-radius: 24px;
-    padding: 2rem 2.5rem;
-    width: 100%;
-    max-width: 460px;
-    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.6);
-    display: flex;
-    flex-direction: column;
-    gap: 1.25rem;
-    text-align: center;
-}
-
-.custom-dialog h3 {
-    font-size: 1.4rem;
-    background: linear-gradient(to right, #ffffff, #d1d5db);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-}
-
-.custom-dialog p {
-    color: rgba(255, 255, 255, 0.6);
-    font-size: 0.95rem;
-    line-height: 1.5;
-}
-
-.dialog-buttons {
-    display: flex;
-    gap: 1rem;
-    justify-content: center;
-    margin-top: 0.5rem;
-}
-
-/* Database view toolbar */
-.toolbar {
-    display: flex;
-    justify-content: space-between;
-    align-items: flex-end;
-    gap: 1.5rem;
-    flex-wrap: wrap;
-    background: rgba(255, 255, 255, 0.01);
-    border: 1px solid var(--border-color);
-    border-radius: 16px;
-    padding: 1.25rem 1.5rem;
-}
-
-.filter-group {
-    display: flex;
-    flex-direction: column;
-    gap: 0.4rem;
-    flex: 1;
-    min-width: 200px;
-}
-
-.filter-group label {
-    font-size: 0.8rem;
-    color: rgba(255, 255, 255, 0.4);
-    font-weight: 600;
-    text-transform: uppercase;
-    display: flex;
-    align-items: center;
-    gap: 0.4rem;
-}
-
-.filter-group label i {
-    width: 14px;
-    height: 14px;
-    color: var(--cyan-color);
-}
-
-.filter-group input, .filter-group select {
-    padding: 0.75rem 1rem;
-    border-radius: 10px;
-    font-size: 0.9rem;
-}
-
-.clear-filters-btn {
-    height: 44px;
-    white-space: nowrap;
-}
-
-/* Toast Notification Styles */
-.toast {
-    position: fixed;
-    bottom: 2rem;
-    right: 2rem;
-    padding: 1rem 1.5rem;
-    border-radius: 12px;
-    color: #ffffff;
-    font-weight: 500;
-    font-size: 0.95rem;
-    z-index: 2000;
-    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.4);
-    display: flex;
-    align-items: center;
-    gap: 0.75rem;
-    animation: slideUp 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards;
-}
-
-.toast.success { background: rgba(16, 185, 129, 0.9); border: 1px solid rgba(16, 185, 129, 0.2); }
-.toast.error { background: rgba(239, 68, 68, 0.9); border: 1px solid rgba(239, 68, 68, 0.2); }
-.toast.info { background: rgba(6, 182, 212, 0.9); border: 1px solid rgba(6, 182, 212, 0.2); }
-
-@keyframes slideUp {
-    from { opacity: 0; transform: translateY(20px) scale(0.95); }
-    to { opacity: 1; transform: translateY(0) scale(1); }
-}
-
-/* Micro-animations */
-.animate-pulse {
-    animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
-}
-
-.animate-bounce {
-    animation: bounce 2s infinite;
-}
-
-@keyframes pulse {
-    0%, 100% { opacity: 1; transform: scale(1); }
-    50% { opacity: .7; transform: scale(1.05); }
-}
-
-@keyframes bounce {
-    0%, 100% { transform: translateY(0); }
-    50% { transform: translateY(-8px); }
-}
-
-/* Custom Scrollbar for modern look */
-::-webkit-scrollbar {
-    width: 8px;
-    height: 8px;
-}
-
-::-webkit-scrollbar-track {
-    background: var(--bg-primary);
-}
-
-::-webkit-scrollbar-thumb {
-    background: rgba(255, 255, 255, 0.08);
-    border-radius: 4px;
-}
-
-::-webkit-scrollbar-thumb:hover {
-    background: rgba(255, 255, 255, 0.15);
-}
-
-/* Responsive Rules */
-@media (max-width: 1024px) {
-    .app-container {
-        flex-direction: column;
-    }
-    
-    .sidebar {
-        width: 100%;
-        border-right: none;
-        border-bottom: 1px solid var(--border-color);
-    }
-    
-    .logo-area {
-        padding: 1.5rem;
-    }
-    
-    .nav-menu {
-        flex-direction: row;
-        overflow-x: auto;
-        padding: 0.5rem 1rem;
-        gap: 0.5rem;
-    }
-    
-    .nav-item {
-        padding: 0.6rem 1rem;
-        white-space: nowrap;
-    }
-    
-    .main-content {
-        padding: 1.5rem;
-        max-height: none;
-    }
-    
-    .dashboard-grid {
-        grid-template-columns: 1fr;
-    }
-    
-    .cancellation-grid {
-        grid-template-columns: 1fr;
-    }
-}
-
-@media (max-width: 768px) {
-    .form-grid {
-        grid-template-columns: 1fr;
-    }
-    
-    .full-width {
-        grid-column: span 1;
-    }
-    
-    .stepper {
-        padding: 1rem;
-        flex-direction: column;
-        align-items: flex-start;
-        gap: 1rem;
-    }
-    
-    .step-connector {
-        display: none;
-    }
-    
-    .seat-layout-grid {
-        grid-template-columns: 1fr;
-    }
-    
-    .boarding-pass {
-        flex-direction: column;
-    }
-    
-    .pass-body {
-        grid-template-columns: 1fr;
-    }
-    
-    .pass-col-main {
-        border-right: none;
-        border-bottom: 2px dashed rgba(255, 255, 255, 0.08);
-    }
-    
-    .boarding-pass::before, .boarding-pass::after {
-        display: none;
-    }
-}
-
-/* ==========================================================================
-   Print Stylesheet
-   ========================================================================== */
-@media print {
-    body {
-        background-color: #ffffff !important;
-        color: #000000 !important;
-    }
-    
-    .sidebar, .top-header, .page-title-section, .stepper, .wizard-buttons, .print-hidden, #toast {
-        display: none !important;
-    }
-    
-    .app-container, .main-content {
-        display: block !important;
-        padding: 0 !important;
-        margin: 0 !important;
-        background: transparent !important;
-    }
-    
-    .wizard-step {
-        display: block !important;
-    }
-    
-    .boarding-pass {
-        border: 2px solid #000000 !important;
-        background: #ffffff !important;
-        color: #000000 !important;
-        width: 100% !important;
-        max-width: 100% !important;
-        box-shadow: none !important;
-        margin: 0 !important;
-    }
-    
-    .pass-header {
-        background: #f3f4f6 !important;
-        border-bottom: 2px dashed #000000 !important;
-    }
-    
-    .pass-logo, .pass-logo i {
-        color: #000000 !important;
-    }
-    
-    .pass-class {
-        color: #000000 !important;
-        border: 1px solid #000000 !important;
-        background: #ffffff !important;
-    }
-    
-    .pass-col-main {
-        border-right: 2px dashed #000000 !important;
-    }
-    
-    .pass-col-stub {
-        background: #f9fafb !important;
-    }
-    
-    .info-block .label {
-        color: #4b5563 !important;
-    }
-    
-    .info-block .value, .value.stub-small {
-        color: #000000 !important;
-    }
-    
-    .text-glow {
-        text-shadow: none !important;
-        color: #000000 !important;
-    }
-    
-    .barcode {
-        background: repeating-linear-gradient(
-            90deg,
-            #000000,
-            #000000 2px,
-            #ffffff 2px,
-            #ffffff 4px,
-            #000000 4px,
-            #000000 5px,
-            #ffffff 5px,
-            #ffffff 7px
-        ) !important;
-    }
-    
-    .barcode-text {
-        color: #000000 !important;
-    }
-    
-    .ticket-celebration {
-        display: none !important;
-    }
-}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NextGen Airways - Premium Reservation Dashboard</title>
+    <!-- Google Fonts: Outfit & Space Grotesk -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Lucide Icons via CDN -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="app-container">
+        <!-- Sidebar Navigation -->
+        <aside class="sidebar">
+            <div class="logo-area">
+                <div class="logo-glow"></div>
+                <i data-lucide="plane-takeoff" class="logo-icon animate-pulse"></i>
+                <div class="logo-text">
+                    <span class="logo-main">NextGen</span>
+                    <span class="logo-sub">Airways</span>
+                </div>
+            </div>
+            <nav class="nav-menu">
+                <a href="#dashboard" class="nav-item active" data-view="dashboard">
+                    <i data-lucide="layout-dashboard"></i>
+                    <span>Dashboard</span>
+                </a>
+                <a href="#book-flight" class="nav-item" data-view="booking">
+                    <i data-lucide="ticket-plus"></i>
+                    <span>Book Flight</span>
+                </a>
+                <a href="#my-bookings" class="nav-item" data-view="cancellation">
+                    <i data-lucide="ticket-minus"></i>
+                    <span>Manage Bookings</span>
+                </a>
+                <a href="#ticket-database" class="nav-item" data-view="database">
+                    <i data-lucide="database"></i>
+                    <span>Ticket Database</span>
+                </a>
+            </nav>
+            <div class="sidebar-footer">
+                <div class="system-status">
+                    <span class="status-indicator online"></span>
+                    <span>System Operational</span>
+                </div>
+            </div>
+        </aside>
+
+        <!-- Main Content Area -->
+        <main class="main-content">
+            <!-- Top Header -->
+            <header class="top-header">
+                <div class="header-search">
+                    <i data-lucide="search"></i>
+                    <input type="text" id="global-search" placeholder="Quick search flights or tickets...">
+                </div>
+                <div class="header-profile">
+                    <div class="notification-bell">
+                        <i data-lucide="bell"></i>
+                        <span class="bell-badge"></span>
+                    </div>
+                    <div class="avatar">
+                        <span>JD</span>
+                    </div>
+                </div>
+            </header>
+
+            <!-- Dashboard View -->
+            <section id="view-dashboard" class="content-view active">
+                <div class="welcome-banner">
+                    <div class="banner-overlay"></div>
+                    <div class="banner-content">
+                        <h1>Fly Beyond Boundaries</h1>
+                        <p>Welcome back to NextGen Airways. Manage your global routes and experience the pinnacle of flight reservation.</p>
+                        <button class="btn btn-primary" onclick="switchView('booking')">
+                            <i data-lucide="plane"></i> Book A Flight Now
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Live Metrics Grid -->
+                <div class="metrics-grid">
+                    <div class="metric-card">
+                        <div class="card-glow"></div>
+                        <div class="metric-icon purple">
+                            <i data-lucide="users"></i>
+                        </div>
+                        <div class="metric-info">
+                            <h3>Total Bookings</h3>
+                            <p id="stat-total-bookings">0</p>
+                        </div>
+                    </div>
+                    <div class="metric-card">
+                        <div class="card-glow"></div>
+                        <div class="metric-icon cyan">
+                            <i data-lucide="banknote"></i>
+                        </div>
+                        <div class="metric-info">
+                            <h3>Total Revenue</h3>
+                            <p id="stat-revenue">Rs. 0</p>
+                        </div>
+                    </div>
+                    <div class="metric-card">
+                        <div class="card-glow"></div>
+                        <div class="metric-icon gold">
+                            <i data-lucide="globe"></i>
+                        </div>
+                        <div class="metric-info">
+                            <h3>Active Destinations</h3>
+                            <p>6 Countries</p>
+                        </div>
+                    </div>
+                    <div class="metric-card">
+                        <div class="card-glow"></div>
+                        <div class="metric-icon pink">
+                            <i data-lucide="percent"></i>
+                        </div>
+                        <div class="metric-info">
+                            <h3>Average Occupancy</h3>
+                            <p id="stat-occupancy">0%</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Interactive Map / Routes overview -->
+                <div class="dashboard-grid">
+                    <div class="grid-card route-status-card">
+                        <h2>NextGen Active Fleet Status</h2>
+                        <div class="table-container">
+                            <table class="data-table">
+                                <thead>
+                                    <tr>
+                                        <th>Flight</th>
+                                        <th>Destination</th>
+                                        <th>Time</th>
+                                        <th>Duration</th>
+                                        <th>Fare</th>
+                                        <th>Status</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="fleet-status-body">
+                                    <!-- Dynamic rows loaded from javascript -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <div class="grid-card quick-stats-card">
+                        <h2>Destination Popularity</h2>
+                        <div class="chart-container">
+                            <div class="custom-progress-list" id="destination-popularity-list">
+                                <!-- Dynamic progress bars -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Book Flight View (Stepper Wizard) -->
+            <section id="view-booking" class="content-view">
+                <div class="page-title-section">
+                    <h2>Flight Reservation Wizard</h2>
+                    <p>Complete the fields below to book a premium ticket on one of our global flights.</p>
+                </div>
+
+                <!-- Stepper Indicators -->
+                <div class="stepper">
+                    <div class="step active" id="step-ind-1">
+                        <span class="step-num">1</span>
+                        <span class="step-label">Passenger Info</span>
+                    </div>
+                    <div class="step-connector"></div>
+                    <div class="step" id="step-ind-2">
+                        <span class="step-num">2</span>
+                        <span class="step-label">Flight Selection</span>
+                    </div>
+                    <div class="step-connector"></div>
+                    <div class="step" id="step-ind-3">
+                        <span class="step-num">3</span>
+                        <span class="step-label">Seat Selector</span>
+                    </div>
+                    <div class="step-connector"></div>
+                    <div class="step" id="step-ind-4">
+                        <span class="step-num">4</span>
+                        <span class="step-label">E-Ticket</span>
+                    </div>
+                </div>
+
+                <!-- Wizard Steps Content -->
+                <div class="wizard-container">
+                    <!-- Step 1: Passenger Registration Form -->
+                    <div class="wizard-step active" id="wizard-step-1">
+                        <form id="passenger-form" novalidate>
+                            <div class="form-grid">
+                                <div class="form-group full-width">
+                                    <label for="reg-id"><i data-lucide="fingerprint"></i> National ID Number (11 digits)</label>
+                                    <input type="text" id="reg-id" maxlength="11" placeholder="e.g. 12345678901" required>
+                                    <span class="error-msg" id="err-id"></span>
+                                    <small class="form-hint">Must be exactly 11 digits, numbers only, and unique.</small>
+                                </div>
+                                <div class="form-group">
+                                    <label for="reg-name"><i data-lucide="user"></i> Passenger Name</label>
+                                    <input type="text" id="reg-name" maxlength="20" placeholder="e.g. John Doe" required>
+                                    <span class="error-msg" id="err-name"></span>
+                                    <small class="form-hint">Maximum 20 characters.</small>
+                                </div>
+                                <div class="form-group">
+                                    <label for="reg-gender"><i data-lucide="venus-mars"></i> Gender</label>
+                                    <select id="reg-gender" required>
+                                        <option value="" disabled selected>Select gender</option>
+                                        <option value="male">Male</option>
+                                        <option value="female">Female</option>
+                                        <option value="custom">Custom</option>
+                                    </select>
+                                    <span class="error-msg" id="err-gender"></span>
+                                </div>
+                                <div class="form-group">
+                                    <label for="reg-age"><i data-lucide="calendar"></i> Age</label>
+                                    <input type="number" id="reg-age" placeholder="e.g. 28" min="1" max="119" required>
+                                    <span class="error-msg" id="err-age"></span>
+                                    <small class="form-hint">Must be between 1 and 119 years.</small>
+                                </div>
+                                <div class="form-group">
+                                    <label for="reg-passport"><i data-lucide="contact-2"></i> Passport Number</label>
+                                    <input type="text" id="reg-passport" placeholder="e.g. 8493021" required>
+                                    <span class="error-msg" id="err-passport"></span>
+                                    <small class="form-hint">Must be digits only, at least 7 characters.</small>
+                                </div>
+                            </div>
+                            <div class="wizard-buttons">
+                                <button type="button" class="btn btn-primary" onclick="validateStep1()">
+                                    Continue to Flights <i data-lucide="arrow-right"></i>
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+
+                    <!-- Step 2: Flight & Country Selection -->
+                    <div class="wizard-step" id="wizard-step-2">
+                        <div class="destination-grid" id="destination-cards-container">
+                            <!-- Loaded Dynamically via JS -->
+                        </div>
+
+                        <!-- Sub-flights selection panel -->
+                        <div class="flights-selection-panel hidden" id="flights-subpanel">
+                            <h3 id="flights-country-title"><i data-lucide="plane"></i> Available Flights for Dubai</h3>
+                            <div class="flights-list" id="flights-options-list">
+                                <!-- Loaded Dynamically via JS -->
+                            </div>
+                        </div>
+
+                        <div class="wizard-buttons">
+                            <button type="button" class="btn btn-secondary" onclick="prevStep(1)">
+                                <i data-lucide="arrow-left"></i> Back to Passenger Info
+                            </button>
+                            <button type="button" class="btn btn-primary" id="btn-to-seat" disabled onclick="continueToSeatSelection()">
+                                Select Seat <i data-lucide="arrow-right"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Step 3: Interactive Seat Selection -->
+                    <div class="wizard-step" id="wizard-step-3">
+                        <div class="seat-layout-grid">
+                            <div class="cabin-container">
+                                <div class="aircraft-cockpit">
+                                    <span class="cockpit-text">Cockpit</span>
+                                </div>
+                                <div class="aircraft-cabin">
+                                    <div class="seat-legend">
+                                        <div class="legend-item"><span class="legend-box available"></span><span>Available</span></div>
+                                        <div class="legend-item"><span class="legend-box selected"></span><span>Selected</span></div>
+                                        <div class="legend-item"><span class="legend-box occupied"></span><span>Occupied</span></div>
+                                    </div>
+                                    <div class="seat-map" id="interactive-seat-map">
+                                        <!-- Dynamically generated seats -->
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="seat-details-panel">
+                                <h3>Seating Information</h3>
+                                <div class="selected-details-box">
+                                    <div class="info-row">
+                                        <span>Flight Selected:</span>
+                                        <strong id="seat-details-flight">-</strong>
+                                    </div>
+                                    <div class="info-row">
+                                        <span>Fare Class:</span>
+                                        <strong id="seat-details-class">Economy</strong>
+                                    </div>
+                                    <div class="info-row">
+                                        <span>Chosen Seat:</span>
+                                        <strong id="seat-details-num" class="text-glow">-</strong>
+                                    </div>
+                                    <div class="info-row">
+                                        <span>Ticket Base Fare:</span>
+                                        <strong id="seat-details-fare">Rs. 0</strong>
+                                    </div>
+                                </div>
+                                <p class="seat-info-note"><i data-lucide="info"></i> Emergency exit rows have extra legroom. Seat reservations are finalized upon proceeding.</p>
+                            </div>
+                        </div>
+                        <div class="wizard-buttons">
+                            <button type="button" class="btn btn-secondary" onclick="prevStep(2)">
+                                <i data-lucide="arrow-left"></i> Back to Flights
+                            </button>
+                            <button type="button" class="btn btn-primary" id="btn-confirm-booking" disabled onclick="finalizeBooking()">
+                                Finalize & Book Ticket <i data-lucide="check-circle-2"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Step 4: E-Ticket Boarding Pass -->
+                    <div class="wizard-step" id="wizard-step-4">
+                        <div class="ticket-celebration">
+                            <i data-lucide="party-popper" class="success-icon animate-bounce"></i>
+                            <h2>Booking Confirmed!</h2>
+                            <p>Your ticket has been generated successfully. Your boarding pass is shown below.</p>
+                        </div>
+
+                        <!-- Boarding Pass Widget -->
+                        <div class="boarding-pass" id="printable-boarding-pass">
+                            <div class="pass-header">
+                                <div class="pass-logo">
+                                    <i data-lucide="plane-takeoff"></i>
+                                    <span>NextGen Airways</span>
+                                </div>
+                                <div class="pass-class">BOARDING PASS</div>
+                            </div>
+                            <div class="pass-body">
+                                <div class="pass-col-main">
+                                    <div class="row">
+                                        <div class="info-block">
+                                            <span class="label">PASSENGER NAME</span>
+                                            <span class="value" id="pass-name">-</span>
+                                        </div>
+                                        <div class="info-block align-right">
+                                            <span class="label">NATIONAL ID</span>
+                                            <span class="value" id="pass-id">-</span>
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="info-block">
+                                            <span class="label">FLIGHT NO</span>
+                                            <span class="value text-glow" id="pass-flight">-</span>
+                                        </div>
+                                        <div class="info-block">
+                                            <span class="label">DESTINATION</span>
+                                            <span class="value" id="pass-destination">-</span>
+                                        </div>
+                                        <div class="info-block align-right">
+                                            <span class="label">SEAT</span>
+                                            <span class="value text-glow" id="pass-seat">-</span>
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="info-block">
+                                            <span class="label">AGE / GENDER</span>
+                                            <span class="value" id="pass-age-gender">-</span>
+                                        </div>
+                                        <div class="info-block">
+                                            <span class="label">PASSPORT NO</span>
+                                            <span class="value" id="pass-passport">-</span>
+                                        </div>
+                                        <div class="info-block align-right">
+                                            <span class="label">GATE</span>
+                                            <span class="value">G-12</span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="pass-col-stub">
+                                    <div class="stub-header">BOARDING STUB</div>
+                                    <div class="info-block">
+                                        <span class="label">PASSENGER</span>
+                                        <span class="value stub-small" id="pass-stub-name">-</span>
+                                    </div>
+                                    <div class="info-block">
+                                        <span class="label">FLIGHT / SEAT</span>
+                                        <span class="value stub-small text-glow" id="pass-stub-flight-seat">-</span>
+                                    </div>
+                                    <div class="info-block">
+                                        <span class="label">DESTINATION</span>
+                                        <span class="value stub-small" id="pass-stub-dest">-</span>
+                                    </div>
+                                    <div class="info-block">
+                                        <span class="label">PRICE</span>
+                                        <span class="value stub-small" id="pass-stub-price">-</span>
+                                    </div>
+                                    <div class="barcode-area">
+                                        <div class="barcode"></div>
+                                        <span class="barcode-text" id="pass-stub-barcode">NG-00000000000</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="wizard-buttons print-hidden">
+                            <button type="button" class="btn btn-secondary" onclick="printBoardingPass()">
+                                <i data-lucide="printer"></i> Print / Save Boarding Pass
+                            </button>
+                            <button type="button" class="btn btn-primary" onclick="restartBookingFlow(true)">
+                                Book Another Flight <i data-lucide="user-plus"></i>
+                            </button>
+                            <button type="button" class="btn btn-accent" onclick="switchView('dashboard')">
+                                Go to Dashboard <i data-lucide="layout-dashboard"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Manage Reservations / Cancellation View -->
+            <section id="view-cancellation" class="content-view">
+                <div class="page-title-section">
+                    <h2>Manage Reservations</h2>
+                    <p>Retrieve, review, or cancel existing flight bookings quickly using passenger details.</p>
+                </div>
+
+                <div class="cancellation-grid">
+                    <!-- Retrieval Form -->
+                    <div class="grid-card">
+                        <h3>Search & Retrieve Ticket</h3>
+                        <div class="form-group mt-4">
+                            <label for="search-id"><i data-lucide="search"></i> Enter Passenger 11-digit ID</label>
+                            <div class="search-input-group">
+                                <input type="text" id="search-id" maxlength="11" placeholder="e.g. 12345678901">
+                                <button class="btn btn-primary" onclick="searchTicket()">Search</button>
+                            </div>
+                            <span class="error-msg" id="err-search-id"></span>
+                        </div>
+                    </div>
+
+                    <!-- Search Result Card -->
+                    <div class="grid-card hidden" id="search-result-card">
+                        <h3>Reservation Found</h3>
+                        <div class="ticket-summary-box">
+                            <div class="summary-row"><span>Passenger Name:</span><strong id="res-name">-</strong></div>
+                            <div class="summary-row"><span>National ID:</span><strong id="res-id">-</strong></div>
+                            <div class="summary-row"><span>Destination:</span><strong id="res-dest">-</strong></div>
+                            <div class="summary-row"><span>Flight ID:</span><strong id="res-flight">-</strong></div>
+                            <div class="summary-row"><span>Assigned Seat:</span><strong id="res-seat">-</strong></div>
+                            <div class="summary-row"><span>Fare Charges:</span><strong id="res-charges">-</strong></div>
+                            <div class="summary-row"><span>Passport No:</span><strong id="res-passport">-</strong></div>
+                        </div>
+                        <div class="action-buttons-row mt-4">
+                            <button class="btn btn-danger" id="btn-cancel-reservation">
+                                <i data-lucide="trash-2"></i> Cancel Reservation
+                            </button>
+                            <button class="btn btn-secondary" id="btn-print-from-search">
+                                <i data-lucide="printer"></i> View Boarding Pass
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Rebook Option Modal (Simulated in UI) -->
+                <div id="rebook-dialog" class="custom-dialog-backdrop hidden">
+                    <div class="custom-dialog">
+                        <h3>Booking Canceled Successfully</h3>
+                        <p>Would you like to book another flight for this passenger using the same details?</p>
+                        <div class="dialog-buttons">
+                            <button class="btn btn-primary" onclick="triggerRebook(true)">Yes, Keep Details</button>
+                            <button class="btn btn-secondary" onclick="triggerRebook(false)">No, Exit</button>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Ticket Database View -->
+            <section id="view-database" class="content-view">
+                <div class="page-title-section">
+                    <h2>Ticket Database</h2>
+                    <p>Real-time audit log of all registered passenger reservations, seating coordinates, and revenue data.</p>
+                </div>
+
+                <div class="grid-card">
+                    <!-- Filters Toolbar -->
+                    <div class="toolbar">
+                        <div class="filter-group">
+                            <label for="db-search"><i data-lucide="search"></i> Search ID/Name</label>
+                            <input type="text" id="db-search" placeholder="Type here to search..." oninput="filterDatabase()">
+                        </div>
+                        <div class="filter-group">
+                            <label for="db-filter-dest"><i data-lucide="map-pin"></i> Destination</label>
+                            <select id="db-filter-dest" onchange="filterDatabase()">
+                                <option value="">All Destinations</option>
+                                <option value="Dubai">Dubai</option>
+                                <option value="Canada">Canada</option>
+                                <option value="UK">UK</option>
+                                <option value="USA">USA</option>
+                                <option value="Australia">Australia</option>
+                                <option value="Europe">Europe</option>
+                            </select>
+                        </div>
+                        <button class="btn btn-secondary clear-filters-btn" onclick="clearDbFilters()">
+                            Reset Filters
+                        </button>
+                    </div>
+
+                    <!-- Database Table -->
+                    <div class="table-container mt-4">
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Passenger Name</th>
+                                    <th>Gender</th>
+                                    <th>Age</th>
+                                    <th>Passport</th>
+                                    <th>Destination</th>
+                                    <th>Flight</th>
+                                    <th>Seat</th>
+                                    <th>Fare</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="database-table-body">
+                                <tr>
+                                    <td colspan="10" class="text-center text-muted">No tickets booked yet.</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <!-- Notification system toast element -->
+    <div id="toast" class="toast hidden"></div>
+
+    <script src="app.js"></script>
+</body>
+</html>
