@@ -1,538 +1,915 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>NextGen Airways - Premium Reservation Dashboard</title>
-    <!-- Google Fonts: Outfit & Space Grotesk -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <!-- Lucide Icons via CDN -->
-    <script src="https://unpkg.com/lucide@latest"></script>
-    <link rel="stylesheet" href="styles.css">
-</head>
-<body>
-    <div class="app-container">
-        <!-- Sidebar Navigation -->
-        <aside class="sidebar">
-            <div class="logo-area">
-                <div class="logo-glow"></div>
-                <i data-lucide="plane-takeoff" class="logo-icon animate-pulse"></i>
-                <div class="logo-text">
-                    <span class="logo-main">NextGen</span>
-                    <span class="logo-sub">Airways</span>
+/* ==========================================================================
+   NextGen Airways - Premium Application Engine (ES6 Javascript)
+   ========================================================================== */
+
+// --- Dynamic Databases ---
+const countries = [
+    { id: "dubai", name: "Dubai", icon: "plane", desc: "Glittering skylines, luxury shopping, and ultramodern architecture." },
+    { id: "canada", name: "Canada", icon: "snowflake", desc: "Majestic national parks, wild maple forests, and clean cities." },
+    { id: "uk", name: "UK", icon: "crown", desc: "Historic castles, cozy pubs, and the iconic streets of London." },
+    { id: "usa", name: "USA", icon: "landmark", desc: "Sprawling metropolises, national landmarks, and golden beaches." },
+    { id: "australia", name: "Australia", icon: "sun", desc: "Stunning coral reefs, unique wildlife, and famous harbor fronts." },
+    { id: "europe", name: "Europe", icon: "compass", desc: "Historic art capitals, delicious cuisines, and romance." }
+];
+
+const flightsDb = {
+    "Dubai": [
+        { id: "DUB - 498", date: "08-01-2022", time: "8:00 AM", duration: "10 hrs", price: 14000, status: "boarding" },
+        { id: "DUB - 658", date: "09-01-2022", time: "4:00 AM", duration: "12 hrs", price: 10000, status: "on-time" },
+        { id: "DUB - 508", date: "11-01-2022", time: "11:00 AM", duration: "11 hrs", price: 9000, status: "on-time" }
+    ],
+    "Canada": [
+        { id: "CA - 198", date: "09-01-2022", time: "2:00 PM", duration: "20 hrs", price: 34000, status: "on-time" },
+        { id: "CA - 158", date: "11-01-2022", time: "6:00 AM", duration: "23 hrs", price: 29000, status: "delayed" },
+        { id: "CA - 208", date: "14-01-2022", time: "12:00 AM", duration: "21 hrs", price: 40000, status: "on-time" }
+    ],
+    "UK": [
+        { id: "UK - 798", date: "12-01-2022", time: "10:00 AM", duration: "14 hrs", price: 44000, status: "on-time" }
+    ],
+    "USA": [
+        { id: "US - 567", date: "10-01-2022", time: "9:00 AM", duration: "22 hrs", price: 37000, status: "boarding" },
+        { id: "US - 658", date: "09-01-2022", time: "6:00 AM", duration: "22 hrs", price: 39000, status: "on-time" },
+        { id: "US - 508", date: "12-01-2022", time: "10:00 AM", duration: "21 hrs", price: 42000, status: "on-time" }
+    ],
+    "Australia": [
+        { id: "AS - 698", date: "18-01-2022", time: "9:00 AM", duration: "20 hrs", price: 44000, status: "on-time" },
+        { id: "AS - 158", date: "19-01-2022", time: "4:00 AM", duration: "22 hrs", price: 34000, status: "delayed" },
+        { id: "AS - 708", date: "17-01-2022", time: "10:00 AM", duration: "21 hrs", price: 42000, status: "on-time" }
+    ],
+    "Europe": [
+        { id: "EU - 898", date: "02-01-2022", time: "2:00 AM", duration: "18 hrs", price: 36000, status: "boarding" },
+        { id: "EU - 958", date: "03-01-2022", time: "6:00 AM", duration: "19 hrs", price: 37000, status: "on-time" },
+        { id: "EU - 608", date: "12-01-2022", time: "10:00 AM", duration: "20 hrs", price: 31000, status: "on-time" }
+    ]
+};
+
+// --- App State ---
+let bookingState = {
+    currentStep: 1,
+    passenger: {
+        id: "",
+        name: "",
+        gender: "",
+        age: null,
+        passportNo: ""
+    },
+    flight: null, // object
+    destination: "",
+    selectedSeat: null
+};
+
+// Seating setup: 10 rows (1 to 10), columns A, B, C, D, E, F
+// Store static/mock seat occupancy by flight ID to simulate real environment
+let occupiedSeatsDb = {};
+
+// --- Initialize App ---
+document.addEventListener("DOMContentLoaded", () => {
+    // Initialize icons
+    lucide.createIcons();
+
+    // Check LocalStorage for reservations
+    if (!localStorage.getItem("nextgen_users")) {
+        localStorage.setItem("nextgen_users", JSON.stringify([]));
+    }
+
+    // Seed occupied seats database
+    generateMockOccupiedSeats();
+
+    // Setup SPA navigation
+    setupNavigation();
+
+    // Initialize Dashboard stats & layouts
+    updateDashboardStats();
+    renderFleetStatus();
+    renderPopularityChart();
+
+    // Initialize Stepper view layouts
+    renderDestinationCards();
+
+    // Initialize card hover glow effects
+    setupGlowEffects();
+});
+
+// Setup navigation listener
+function setupNavigation() {
+    const navItems = document.querySelectorAll(".nav-item");
+    navItems.forEach(item => {
+        item.addEventListener("click", (e) => {
+            e.preventDefault();
+            navItems.forEach(nav => nav.classList.remove("active"));
+            item.classList.add("active");
+            const targetView = item.getAttribute("data-view");
+            switchView(targetView);
+        });
+    });
+}
+
+// Switch SPA screens
+function switchView(viewId) {
+    const views = document.querySelectorAll(".content-view");
+    views.forEach(view => view.classList.remove("active"));
+    
+    // Convert mapping
+    let actualViewId = "view-dashboard";
+    if (viewId === "dashboard") actualViewId = "view-dashboard";
+    else if (viewId === "booking") actualViewId = "view-booking";
+    else if (viewId === "cancellation") actualViewId = "view-cancellation";
+    else if (viewId === "database") actualViewId = "view-database";
+    
+    document.getElementById(actualViewId).classList.add("active");
+
+    // Side navigation active sync
+    const navItems = document.querySelectorAll(".sidebar .nav-item");
+    navItems.forEach(item => {
+        if (item.getAttribute("data-view") === viewId) {
+            item.classList.add("active");
+        } else {
+            item.classList.remove("active");
+        }
+    });
+
+    // Reset fields if coming back to dashboard/view databases
+    if (viewId === "database") {
+        renderDatabaseTable();
+    }
+}
+
+// Card glow hover effect
+function setupGlowEffects() {
+    document.addEventListener("mousemove", (e) => {
+        const cards = document.querySelectorAll(".metric-card, .grid-card, .dest-card");
+        cards.forEach(card => {
+            const rect = card.getBoundingClientRect();
+            const x = e.clientX - rect.left;
+            const y = e.clientY - rect.top;
+            card.style.setProperty("--x", `${x}px`);
+            card.style.setProperty("--y", `${y}px`);
+        });
+    });
+}
+
+// Seed seat bookings to make it realistic
+function generateMockOccupiedSeats() {
+    // For each flight, mark 3-8 seats as occupied
+    Object.keys(flightsDb).forEach(country => {
+        flightsDb[country].forEach(flight => {
+            const occupied = [];
+            const cols = ["A", "B", "C", "D", "E", "F"];
+            const count = Math.floor(Math.random() * 8) + 4; // 4 to 11 seats occupied
+            for (let i = 0; i < count; i++) {
+                const row = Math.floor(Math.random() * 10) + 1;
+                const col = cols[Math.floor(Math.random() * 6)];
+                const seatCode = `${row}${col}`;
+                if (!occupied.includes(seatCode)) {
+                    occupied.push(seatCode);
+                }
+            }
+            occupiedSeatsDb[flight.id] = occupied;
+        });
+    });
+}
+
+// Get reservations from LocalStorage
+function getReservations() {
+    return JSON.parse(localStorage.getItem("nextgen_users")) || [];
+}
+
+// Save reservations to LocalStorage
+function saveReservations(resList) {
+    localStorage.setItem("nextgen_users", JSON.stringify(resList));
+}
+
+// Check if Passenger ID is already booked
+function userIdExists(id) {
+    const reservations = getReservations();
+    return reservations.some(res => res.id === id);
+}
+
+// Input Helpers
+function isDigits(str) {
+    return /^\d+$/.test(str);
+}
+
+// Toast notification trigger
+function showToast(message, type = "success") {
+    const toast = document.getElementById("toast");
+    toast.className = `toast ${type}`;
+    toast.innerHTML = `<i data-lucide="${type === 'success' ? 'check-circle' : type === 'error' ? 'alert-triangle' : 'info'}"></i> <span>${message}</span>`;
+    lucide.createIcons();
+    toast.classList.remove("hidden");
+    
+    setTimeout(() => {
+        toast.classList.add("hidden");
+    }, 4000);
+}
+
+// --- Dashboard View Operations ---
+function updateDashboardStats() {
+    const bookings = getReservations();
+    document.getElementById("stat-total-bookings").innerText = bookings.length;
+    
+    const revenue = bookings.reduce((sum, b) => sum + b.charges, 0);
+    document.getElementById("stat-revenue").innerText = `Rs. ${revenue.toLocaleString()}`;
+
+    // Occupancy calculation: total flight capacities = 10 rows * 6 seats * total flights count (14 flights)
+    const totalFlights = 14;
+    const capacity = totalFlights * 60;
+    // Calculate total occupied (mock occupied seats + actual booked seats)
+    let totalOccupiedCount = bookings.length;
+    Object.keys(occupiedSeatsDb).forEach(fId => {
+        totalOccupiedCount += occupiedSeatsDb[fId].length;
+    });
+
+    const occupancyPct = Math.min(Math.round((totalOccupiedCount / capacity) * 100), 100);
+    document.getElementById("stat-occupancy").innerText = `${occupancyPct}%`;
+}
+
+function renderFleetStatus() {
+    const body = document.getElementById("fleet-status-body");
+    body.innerHTML = "";
+    
+    // Display first 4 flights for clean presentation
+    let count = 0;
+    Object.keys(flightsDb).forEach(country => {
+        flightsDb[country].forEach(f => {
+            if (count < 4) {
+                const tr = document.createElement("tr");
+                tr.innerHTML = `
+                    <td><strong class="text-glow">${f.id}</strong></td>
+                    <td>${country}</td>
+                    <td>${f.date} | ${f.time}</td>
+                    <td>${f.duration}</td>
+                    <td>Rs. ${f.price.toLocaleString()}</td>
+                    <td><span class="status-badge ${f.status}">${f.status.replace("-", " ")}</span></td>
+                `;
+                body.appendChild(tr);
+                count++;
+            }
+        });
+    });
+}
+
+function renderPopularityChart() {
+    const container = document.getElementById("destination-popularity-list");
+    container.innerHTML = "";
+
+    const bookings = getReservations();
+    
+    // Group bookings by destination
+    const counts = { Dubai: 0, Canada: 0, UK: 0, USA: 0, Australia: 0, Europe: 0 };
+    bookings.forEach(b => {
+        if (counts.hasOwnProperty(b.destination)) {
+            counts[b.destination]++;
+        }
+    });
+
+    // Add some base values so the dashboard always has active charts
+    const basePcts = { Dubai: 45, Canada: 28, UK: 12, USA: 62, Australia: 35, Europe: 50 };
+
+    Object.keys(basePcts).forEach(country => {
+        const actualCount = counts[country];
+        const displayPct = Math.min(basePcts[country] + (actualCount * 12), 100);
+        
+        const div = document.createElement("div");
+        div.className = "progress-item";
+        div.innerHTML = `
+            <div class="progress-label-row">
+                <span class="progress-name">${country}</span>
+                <span class="progress-pct">${displayPct}% Popularity</span>
+            </div>
+            <div class="progress-bar-bg">
+                <div class="progress-bar-fill" style="width: 0%"></div>
+            </div>
+        `;
+        container.appendChild(div);
+
+        // Animate fill bar
+        setTimeout(() => {
+            div.querySelector(".progress-bar-fill").style.width = `${displayPct}%`;
+        }, 150);
+    });
+}
+
+
+// --- Stepper Booking Wizard Operations ---
+
+// Step 1: Form Validation
+function validateStep1() {
+    let isValid = true;
+    
+    // Inputs & Errors
+    const idInput = document.getElementById("reg-id");
+    const nameInput = document.getElementById("reg-name");
+    const genderSelect = document.getElementById("reg-gender");
+    const ageInput = document.getElementById("reg-age");
+    const passportInput = document.getElementById("reg-passport");
+
+    const errId = document.getElementById("err-id");
+    const errName = document.getElementById("err-name");
+    const errGender = document.getElementById("err-gender");
+    const errAge = document.getElementById("err-age");
+    const errPassport = document.getElementById("err-passport");
+
+    // Clean states
+    idInput.classList.remove("invalid");
+    nameInput.classList.remove("invalid");
+    genderSelect.classList.remove("invalid");
+    ageInput.classList.remove("invalid");
+    passportInput.classList.remove("invalid");
+
+    errId.innerText = "";
+    errName.innerText = "";
+    errGender.innerText = "";
+    errAge.innerText = "";
+    errPassport.innerText = "";
+
+    // ID Validation (Exactly 11 digits, unique, numbers only)
+    const idVal = idInput.value.trim();
+    if (!idVal) {
+        idInput.classList.add("invalid");
+        errId.innerText = "National ID is required.";
+        isValid = false;
+    } else if (!isDigits(idVal) || idVal.length !== 11) {
+        idInput.classList.add("invalid");
+        errId.innerText = "Invalid ID format. Must be exactly 11 digits.";
+        isValid = false;
+    } else if (userIdExists(idVal)) {
+        idInput.classList.add("invalid");
+        errId.innerText = "This National ID already has an active reservation.";
+        isValid = false;
+    }
+
+    // Name Validation (Up to 20 characters)
+    const nameVal = nameInput.value.trim();
+    if (!nameVal) {
+        nameInput.classList.add("invalid");
+        errName.innerText = "Passenger Name is required.";
+        isValid = false;
+    } else if (nameVal.length > 20) {
+        nameInput.classList.add("invalid");
+        errName.innerText = "Name cannot exceed 20 characters.";
+        isValid = false;
+    }
+
+    // Gender Validation (male, female, custom)
+    const genderVal = genderSelect.value;
+    if (!genderVal) {
+        genderSelect.classList.add("invalid");
+        errGender.innerText = "Please select a gender option.";
+        isValid = false;
+    }
+
+    // Age Validation (positive, < 120)
+    const ageVal = parseInt(ageInput.value);
+    if (isNaN(ageVal)) {
+        ageInput.classList.add("invalid");
+        errAge.innerText = "Age is required.";
+        isValid = false;
+    } else if (ageVal <= 0 || ageVal >= 120) {
+        ageInput.classList.add("invalid");
+        errAge.innerText = "Age must be a positive number less than 120.";
+        isValid = false;
+    }
+
+    // Passport Validation (At least 7 digits, digits only)
+    const passportVal = passportInput.value.trim();
+    if (!passportVal) {
+        passportInput.classList.add("invalid");
+        errPassport.innerText = "Passport number is required.";
+        isValid = false;
+    } else if (!isDigits(passportVal) || passportVal.length < 7) {
+        passportInput.classList.add("invalid");
+        errPassport.innerText = "Passport must contain only numbers, minimum 7 digits.";
+        isValid = false;
+    }
+
+    if (isValid) {
+        // Save to state
+        bookingState.passenger = {
+            id: idVal,
+            name: nameVal,
+            gender: genderVal,
+            age: ageVal,
+            passportNo: passportVal
+        };
+
+        showToast("Passenger details validated successfully.", "success");
+        nextStep(2);
+    } else {
+        showToast("Please correct the highlighted errors.", "error");
+    }
+}
+
+// Stepper navigation
+function nextStep(stepNum) {
+    // Hide all steps
+    document.querySelectorAll(".wizard-step").forEach(s => s.classList.remove("active"));
+    // Show target step
+    document.getElementById(`wizard-step-${stepNum}`).classList.add("active");
+
+    // Stepper header sync
+    document.querySelectorAll(".stepper .step").forEach((step, idx) => {
+        const stepIndex = idx + 1;
+        step.classList.remove("active", "completed");
+        if (stepIndex === stepNum) {
+            step.classList.add("active");
+        } else if (stepIndex < stepNum) {
+            step.classList.add("completed");
+        }
+    });
+
+    bookingState.currentStep = stepNum;
+}
+
+function prevStep(stepNum) {
+    nextStep(stepNum);
+}
+
+// Render Step 2: Destination country cards
+function renderDestinationCards() {
+    const container = document.getElementById("destination-cards-container");
+    container.innerHTML = "";
+
+    countries.forEach(country => {
+        const card = document.createElement("div");
+        card.className = "dest-card";
+        card.setAttribute("data-id", country.name);
+        card.innerHTML = `
+            <div class="card-glow"></div>
+            <i data-lucide="${country.icon}"></i>
+            <h4>Flight to ${country.name}</h4>
+            <p>${country.desc}</p>
+        `;
+        card.addEventListener("click", () => selectDestination(country.name, card));
+        container.appendChild(card);
+    });
+    lucide.createIcons();
+    setupGlowEffects();
+}
+
+function selectDestination(countryName, cardEl) {
+    // Highlight Card
+    document.querySelectorAll(".dest-card").forEach(c => c.classList.remove("selected"));
+    cardEl.classList.add("selected");
+
+    bookingState.destination = countryName;
+    bookingState.flight = null;
+    document.getElementById("btn-to-seat").disabled = true;
+
+    // Load available flights list
+    const flightsPanel = document.getElementById("flights-subpanel");
+    const flightsTitle = document.getElementById("flights-country-title");
+    const optionsList = document.getElementById("flights-options-list");
+
+    flightsTitle.innerHTML = `<i data-lucide="plane"></i> Available Flights for ${countryName}`;
+    optionsList.innerHTML = "";
+
+    const availableFlights = flightsDb[countryName] || [];
+    availableFlights.forEach(f => {
+        const item = document.createElement("div");
+        item.className = "flight-option-card";
+        item.innerHTML = `
+            <div class="flight-meta">
+                <div class="flight-code-box">
+                    <span class="flight-code">${f.id}</span>
+                    <span class="flight-duration">${f.duration} Flight</span>
+                </div>
+                <div class="flight-schedule">
+                    <span class="flight-datetime">${f.date} at ${f.time}</span>
+                    <span class="flight-route">Direct Service</span>
                 </div>
             </div>
-            <nav class="nav-menu">
-                <a href="#dashboard" class="nav-item active" data-view="dashboard">
-                    <i data-lucide="layout-dashboard"></i>
-                    <span>Dashboard</span>
-                </a>
-                <a href="#book-flight" class="nav-item" data-view="booking">
-                    <i data-lucide="ticket-plus"></i>
-                    <span>Book Flight</span>
-                </a>
-                <a href="#my-bookings" class="nav-item" data-view="cancellation">
-                    <i data-lucide="ticket-minus"></i>
-                    <span>Manage Bookings</span>
-                </a>
-                <a href="#ticket-database" class="nav-item" data-view="database">
-                    <i data-lucide="database"></i>
-                    <span>Ticket Database</span>
-                </a>
-            </nav>
-            <div class="sidebar-footer">
-                <div class="system-status">
-                    <span class="status-indicator online"></span>
-                    <span>System Operational</span>
-                </div>
+            <div class="flight-fare">
+                <span class="fare-amount">Rs. ${f.price.toLocaleString()}</span>
+                <span class="fare-tax">incl. taxes & fees</span>
             </div>
-        </aside>
+        `;
+        item.addEventListener("click", () => selectFlightOption(f, item));
+        optionsList.appendChild(item);
+    });
 
-        <!-- Main Content Area -->
-        <main class="main-content">
-            <!-- Top Header -->
-            <header class="top-header">
-                <div class="header-search">
-                    <i data-lucide="search"></i>
-                    <input type="text" id="global-search" placeholder="Quick search flights or tickets...">
+    flightsPanel.classList.remove("hidden");
+    lucide.createIcons();
+    
+    // Auto-scroll to flights list
+    flightsPanel.scrollIntoView({ behavior: 'smooth' });
+}
+
+function selectFlightOption(flightObj, element) {
+    document.querySelectorAll(".flight-option-card").forEach(el => el.classList.remove("selected"));
+    element.classList.add("selected");
+
+    bookingState.flight = flightObj;
+    document.getElementById("btn-to-seat").disabled = false;
+}
+
+// Step 3 Seat Selector Navigation
+function continueToSeatSelection() {
+    if (!bookingState.flight) return;
+    
+    // Update labels in Seating pane
+    document.getElementById("seat-details-flight").innerText = bookingState.flight.id;
+    document.getElementById("seat-details-fare").innerText = `Rs. ${bookingState.flight.price.toLocaleString()}`;
+    document.getElementById("seat-details-num").innerText = "-";
+    bookingState.selectedSeat = null;
+    document.getElementById("btn-confirm-booking").disabled = true;
+
+    // Render interactive plane seats
+    renderSeatMap();
+    nextStep(3);
+}
+
+function renderSeatMap() {
+    const seatMap = document.getElementById("interactive-seat-map");
+    seatMap.innerHTML = "";
+
+    const cols = ["A", "B", "C", "D", "E", "F"];
+    const flightId = bookingState.flight.id;
+    const occupiedSeats = occupiedSeatsDb[flightId] || [];
+
+    // Render 10 Rows
+    for (let r = 1; r <= 10; r++) {
+        const rowDiv = document.createElement("div");
+        rowDiv.className = "seat-row";
+
+        // Row number label (left)
+        const rowLabelLeft = document.createElement("span");
+        rowLabelLeft.className = "row-num";
+        rowLabelLeft.innerText = r;
+        rowDiv.appendChild(rowLabelLeft);
+
+        // Group ABC
+        const groupABC = document.createElement("div");
+        groupABC.className = "seat-group";
+        for (let c = 0; c < 3; c++) {
+            const seatCode = `${r}${cols[c]}`;
+            const isOccupied = occupiedSeats.includes(seatCode);
+            const seat = createSeatEl(seatCode, isOccupied);
+            groupABC.appendChild(seat);
+        }
+        rowDiv.appendChild(groupABC);
+
+        // Aisle space
+        const aisle = document.createElement("div");
+        aisle.className = "seat-aisle";
+        rowDiv.appendChild(aisle);
+
+        // Group DEF
+        const groupDEF = document.createElement("div");
+        groupDEF.className = "seat-group";
+        for (let c = 3; c < 6; c++) {
+            const seatCode = `${r}${cols[c]}`;
+            const isOccupied = occupiedSeats.includes(seatCode);
+            const seat = createSeatEl(seatCode, isOccupied);
+            groupDEF.appendChild(seat);
+        }
+        rowDiv.appendChild(groupDEF);
+
+        // Row number label (right)
+        const rowLabelRight = document.createElement("span");
+        rowLabelRight.className = "row-num";
+        rowLabelRight.innerText = r;
+        rowDiv.appendChild(rowLabelRight);
+
+        seatMap.appendChild(rowDiv);
+    }
+}
+
+function createSeatEl(seatCode, isOccupied) {
+    const seat = document.createElement("div");
+    seat.className = `seat ${isOccupied ? 'occupied' : 'available'}`;
+    seat.innerText = seatCode;
+
+    if (!isOccupied) {
+        seat.addEventListener("click", () => {
+            // Remove previous selected seat
+            document.querySelectorAll(".seat.selected").forEach(s => s.classList.remove("selected"));
+            
+            // Mark new selection
+            seat.classList.add("selected");
+            bookingState.selectedSeat = seatCode;
+            document.getElementById("seat-details-num").innerText = seatCode;
+
+            // Enable finalize button
+            document.getElementById("btn-confirm-booking").disabled = false;
+        });
+    }
+    return seat;
+}
+
+// Step 4 Finalize Booking
+function finalizeBooking() {
+    if (!bookingState.selectedSeat) return;
+
+    // Bundle new reservation object
+    const finalUser = {
+        id: bookingState.passenger.id,
+        name: bookingState.passenger.name,
+        gender: bookingState.passenger.gender,
+        age: bookingState.passenger.age,
+        passportNo: bookingState.passenger.passportNo,
+        flight: bookingState.flight.id,
+        destination: bookingState.destination,
+        seat: bookingState.selectedSeat,
+        charges: bookingState.flight.price
+    };
+
+    // Save to Database (LocalStorage)
+    const bookings = getReservations();
+    bookings.push(finalUser);
+    saveReservations(bookings);
+
+    // Add selected seat to occupied database in memory
+    const flightId = bookingState.flight.id;
+    if (!occupiedSeatsDb[flightId]) occupiedSeatsDb[flightId] = [];
+    occupiedSeatsDb[flightId].push(bookingState.selectedSeat);
+
+    // Populate Boarding Pass UI
+    document.getElementById("pass-name").innerText = finalUser.name;
+    document.getElementById("pass-id").innerText = finalUser.id;
+    document.getElementById("pass-flight").innerText = finalUser.flight;
+    document.getElementById("pass-destination").innerText = finalUser.destination;
+    document.getElementById("pass-seat").innerText = finalUser.seat;
+    document.getElementById("pass-age-gender").innerText = `${finalUser.age} Yrs / ${finalUser.gender.toUpperCase()}`;
+    document.getElementById("pass-passport").innerText = finalUser.passportNo;
+
+    // Boarding Pass Stub Elements
+    document.getElementById("pass-stub-name").innerText = finalUser.name;
+    document.getElementById("pass-stub-flight-seat").innerText = `${finalUser.flight} / ${finalUser.seat}`;
+    document.getElementById("pass-stub-dest").innerText = finalUser.destination;
+    document.getElementById("pass-stub-price").innerText = `Rs. ${finalUser.charges.toLocaleString()}`;
+    document.getElementById("pass-stub-barcode").innerText = `NG-${finalUser.id}`;
+
+    showToast(`Flight ticket booked successfully on seat ${finalUser.seat}!`, "success");
+    
+    // Update Stats
+    updateDashboardStats();
+    renderPopularityChart();
+
+    nextStep(4);
+}
+
+// Print trigger (uses browser print window configured via styles.css print queries)
+function printBoardingPass() {
+    window.print();
+}
+
+// Reset and restart booking wizard
+function restartBookingFlow(keepDetails = false) {
+    if (keepDetails) {
+        // Retain ID, Name, Gender, Age, Passport but reset flight selections
+        bookingState.flight = null;
+        bookingState.selectedSeat = null;
+        document.getElementById("btn-to-seat").disabled = true;
+        document.getElementById("btn-confirm-booking").disabled = true;
+        
+        // Remove class select states
+        document.querySelectorAll(".dest-card").forEach(c => c.classList.remove("selected"));
+        document.getElementById("flights-subpanel").classList.add("hidden");
+
+        showToast("Booking context updated with previous passenger profile.", "info");
+        nextStep(2);
+    } else {
+        // Complete clear
+        bookingState = {
+            currentStep: 1,
+            passenger: { id: "", name: "", gender: "", age: null, passportNo: "" },
+            flight: null,
+            destination: "",
+            selectedSeat: null
+        };
+        
+        document.getElementById("passenger-form").reset();
+        document.getElementById("btn-to-seat").disabled = true;
+        document.getElementById("btn-confirm-booking").disabled = true;
+        document.querySelectorAll(".dest-card").forEach(c => c.classList.remove("selected"));
+        document.getElementById("flights-subpanel").classList.add("hidden");
+
+        nextStep(1);
+    }
+}
+
+
+// --- Manage Reservations / Cancellation View Operations ---
+
+function searchTicket() {
+    const input = document.getElementById("search-id");
+    const err = document.getElementById("err-search-id");
+    const resultCard = document.getElementById("search-result-card");
+    const searchId = input.value.trim();
+
+    err.innerText = "";
+    resultCard.classList.add("hidden");
+
+    if (!searchId) {
+        err.innerText = "Please enter passenger National ID.";
+        input.classList.add("invalid");
+        return;
+    }
+
+    if (!isDigits(searchId) || searchId.length !== 11) {
+        err.innerText = "Invalid ID formats. Must be exactly 11 digits.";
+        input.classList.add("invalid");
+        return;
+    }
+
+    input.classList.remove("invalid");
+
+    const reservations = getReservations();
+    const ticket = reservations.find(res => res.id === searchId);
+
+    if (ticket) {
+        // Load details
+        document.getElementById("res-name").innerText = ticket.name;
+        document.getElementById("res-id").innerText = ticket.id;
+        document.getElementById("res-dest").innerText = ticket.destination;
+        document.getElementById("res-flight").innerText = ticket.flight;
+        document.getElementById("res-seat").innerText = ticket.seat;
+        document.getElementById("res-charges").innerText = `Rs. ${ticket.charges.toLocaleString()}`;
+        document.getElementById("res-passport").innerText = ticket.passportNo;
+
+        // Setup actions
+        const cancelBtn = document.getElementById("btn-cancel-reservation");
+        const printBtn = document.getElementById("btn-print-from-search");
+
+        // Clone button templates to clear previous click bindings
+        const newCancelBtn = cancelBtn.cloneNode(true);
+        const newPrintBtn = printBtn.cloneNode(true);
+
+        cancelBtn.parentNode.replaceChild(newCancelBtn, cancelBtn);
+        printBtn.parentNode.replaceChild(newPrintBtn, printBtn);
+
+        newCancelBtn.addEventListener("click", () => deleteTicket(ticket.id));
+        newPrintBtn.addEventListener("click", () => displayBoardingPassFromSearch(ticket));
+
+        resultCard.classList.remove("hidden");
+        showToast("Reservation record retrieved.", "success");
+    } else {
+        showToast("No active reservation found with the provided ID.", "error");
+    }
+}
+
+function deleteTicket(id) {
+    const reservations = getReservations();
+    const ticketIdx = reservations.findIndex(res => res.id === id);
+
+    if (ticketIdx !== -1) {
+        const ticket = reservations[ticketIdx];
+        
+        // Remove from localStorage
+        reservations.splice(ticketIdx, 1);
+        saveReservations(reservations);
+
+        // Remove seat from in-memory occupied list
+        const flightId = ticket.flight;
+        if (occupiedSeatsDb[flightId]) {
+            occupiedSeatsDb[flightId] = occupiedSeatsDb[flightId].filter(seat => seat !== ticket.seat);
+        }
+
+        // Hide result view
+        document.getElementById("search-result-card").classList.add("hidden");
+        document.getElementById("search-id").value = "";
+
+        // Update stats
+        updateDashboardStats();
+        renderPopularityChart();
+
+        // Prompt Rebook Context dialog modal (mimicking C++ reservation flow)
+        bookingState.passenger = {
+            id: ticket.id,
+            name: ticket.name,
+            gender: ticket.gender,
+            age: ticket.age,
+            passportNo: ticket.passportNo
+        };
+
+        const rebookModal = document.getElementById("rebook-dialog");
+        rebookModal.classList.remove("hidden");
+    }
+}
+
+function triggerRebook(shouldRebook) {
+    document.getElementById("rebook-dialog").classList.add("hidden");
+
+    if (shouldRebook) {
+        // Take to book flight directly with saved details
+        switchView("booking");
+        restartBookingFlow(true);
+    } else {
+        // Go back to main dashboard
+        switchView("dashboard");
+    }
+}
+
+function displayBoardingPassFromSearch(ticket) {
+    // Populate Boarding Pass UI
+    document.getElementById("pass-name").innerText = ticket.name;
+    document.getElementById("pass-id").innerText = ticket.id;
+    document.getElementById("pass-flight").innerText = ticket.flight;
+    document.getElementById("pass-destination").innerText = ticket.destination;
+    document.getElementById("pass-seat").innerText = ticket.seat;
+    document.getElementById("pass-age-gender").innerText = `${ticket.age} Yrs / ${ticket.gender.toUpperCase()}`;
+    document.getElementById("pass-passport").innerText = ticket.passportNo;
+
+    // Boarding Pass Stub Elements
+    document.getElementById("pass-stub-name").innerText = ticket.name;
+    document.getElementById("pass-stub-flight-seat").innerText = `${ticket.flight} / ${ticket.seat}`;
+    document.getElementById("pass-stub-dest").innerText = ticket.destination;
+    document.getElementById("pass-stub-price").innerText = `Rs. ${ticket.charges.toLocaleString()}`;
+    document.getElementById("pass-stub-barcode").innerText = `NG-${ticket.id}`;
+
+    // Switch step directly to E-ticket on Booking Wizard
+    switchView("booking");
+    nextStep(4);
+}
+
+
+// --- Ticket Database View Operations ---
+
+function renderDatabaseTable(filteredList = null) {
+    const tableBody = document.getElementById("database-table-body");
+    tableBody.innerHTML = "";
+
+    const list = filteredList || getReservations();
+
+    if (list.length === 0) {
+        tableBody.innerHTML = `<tr><td colspan="10" class="text-center text-muted">No reservations match the filter criteria.</td></tr>`;
+        return;
+    }
+
+    list.forEach(item => {
+        const tr = document.createElement("tr");
+        tr.innerHTML = `
+            <td>${item.id}</td>
+            <td><strong>${item.name}</strong></td>
+            <td><span class="status-badge on-time" style="background: rgba(255,255,255,0.03); color: #fff; border: 1px solid rgba(255,255,255,0.05);">${item.gender}</span></td>
+            <td>${item.age}</td>
+            <td>${item.passportNo}</td>
+            <td>${item.destination}</td>
+            <td><strong class="text-glow">${item.flight}</strong></td>
+            <td><span class="status-badge boarding">${item.seat}</span></td>
+            <td>Rs. ${item.charges.toLocaleString()}</td>
+            <td>
+                <div class="row" style="gap: 0.5rem; justify-content: flex-start;">
+                    <button class="btn btn-secondary" style="padding: 0.4rem 0.6rem; font-size: 0.75rem; border-radius: 6px;" onclick="displayBoardingPassFromSearch(${JSON.stringify(item).replace(/"/g, '&quot;')})">
+                        <i data-lucide="printer" style="width:12px; height:12px;"></i> View
+                    </button>
+                    <button class="btn btn-danger" style="padding: 0.4rem 0.6rem; font-size: 0.75rem; border-radius: 6px; background: #991b1b; box-shadow: none;" onclick="deleteTicketDirect('${item.id}')">
+                        Cancel
+                    </button>
                 </div>
-                <div class="header-profile">
-                    <div class="notification-bell">
-                        <i data-lucide="bell"></i>
-                        <span class="bell-badge"></span>
-                    </div>
-                    <div class="avatar">
-                        <span>JD</span>
-                    </div>
-                </div>
-            </header>
+            </td>
+        `;
+        tableBody.appendChild(tr);
+    });
+    lucide.createIcons();
+}
 
-            <!-- Dashboard View -->
-            <section id="view-dashboard" class="content-view active">
-                <div class="welcome-banner">
-                    <div class="banner-overlay"></div>
-                    <div class="banner-content">
-                        <h1>Fly Beyond Boundaries</h1>
-                        <p>Welcome back to NextGen Airways. Manage your global routes and experience the pinnacle of flight reservation.</p>
-                        <button class="btn btn-primary" onclick="switchView('booking')">
-                            <i data-lucide="plane"></i> Book A Flight Now
-                        </button>
-                    </div>
-                </div>
+function filterDatabase() {
+    const searchQuery = document.getElementById("db-search").value.trim().toLowerCase();
+    const destFilter = document.getElementById("db-filter-dest").value;
 
-                <!-- Live Metrics Grid -->
-                <div class="metrics-grid">
-                    <div class="metric-card">
-                        <div class="card-glow"></div>
-                        <div class="metric-icon purple">
-                            <i data-lucide="users"></i>
-                        </div>
-                        <div class="metric-info">
-                            <h3>Total Bookings</h3>
-                            <p id="stat-total-bookings">0</p>
-                        </div>
-                    </div>
-                    <div class="metric-card">
-                        <div class="card-glow"></div>
-                        <div class="metric-icon cyan">
-                            <i data-lucide="banknote"></i>
-                        </div>
-                        <div class="metric-info">
-                            <h3>Total Revenue</h3>
-                            <p id="stat-revenue">Rs. 0</p>
-                        </div>
-                    </div>
-                    <div class="metric-card">
-                        <div class="card-glow"></div>
-                        <div class="metric-icon gold">
-                            <i data-lucide="globe"></i>
-                        </div>
-                        <div class="metric-info">
-                            <h3>Active Destinations</h3>
-                            <p>6 Countries</p>
-                        </div>
-                    </div>
-                    <div class="metric-card">
-                        <div class="card-glow"></div>
-                        <div class="metric-icon pink">
-                            <i data-lucide="percent"></i>
-                        </div>
-                        <div class="metric-info">
-                            <h3>Average Occupancy</h3>
-                            <p id="stat-occupancy">0%</p>
-                        </div>
-                    </div>
-                </div>
+    const allBookings = getReservations();
 
-                <!-- Interactive Map / Routes overview -->
-                <div class="dashboard-grid">
-                    <div class="grid-card route-status-card">
-                        <h2>NextGen Active Fleet Status</h2>
-                        <div class="table-container">
-                            <table class="data-table">
-                                <thead>
-                                    <tr>
-                                        <th>Flight</th>
-                                        <th>Destination</th>
-                                        <th>Time</th>
-                                        <th>Duration</th>
-                                        <th>Fare</th>
-                                        <th>Status</th>
-                                    </tr>
-                                </thead>
-                                <tbody id="fleet-status-body">
-                                    <!-- Dynamic rows loaded from javascript -->
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
+    const filtered = allBookings.filter(b => {
+        const matchesSearch = b.id.includes(searchQuery) || b.name.toLowerCase().includes(searchQuery);
+        const matchesDest = !destFilter || b.destination === destFilter;
+        return matchesSearch && matchesDest;
+    });
 
-                    <div class="grid-card quick-stats-card">
-                        <h2>Destination Popularity</h2>
-                        <div class="chart-container">
-                            <div class="custom-progress-list" id="destination-popularity-list">
-                                <!-- Dynamic progress bars -->
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </section>
+    renderDatabaseTable(filtered);
+}
 
-            <!-- Book Flight View (Stepper Wizard) -->
-            <section id="view-booking" class="content-view">
-                <div class="page-title-section">
-                    <h2>Flight Reservation Wizard</h2>
-                    <p>Complete the fields below to book a premium ticket on one of our global flights.</p>
-                </div>
+function clearDbFilters() {
+    document.getElementById("db-search").value = "";
+    document.getElementById("db-filter-dest").value = "";
+    renderDatabaseTable();
+    showToast("Database filters cleared.", "info");
+}
 
-                <!-- Stepper Indicators -->
-                <div class="stepper">
-                    <div class="step active" id="step-ind-1">
-                        <span class="step-num">1</span>
-                        <span class="step-label">Passenger Info</span>
-                    </div>
-                    <div class="step-connector"></div>
-                    <div class="step" id="step-ind-2">
-                        <span class="step-num">2</span>
-                        <span class="step-label">Flight Selection</span>
-                    </div>
-                    <div class="step-connector"></div>
-                    <div class="step" id="step-ind-3">
-                        <span class="step-num">3</span>
-                        <span class="step-label">Seat Selector</span>
-                    </div>
-                    <div class="step-connector"></div>
-                    <div class="step" id="step-ind-4">
-                        <span class="step-num">4</span>
-                        <span class="step-label">E-Ticket</span>
-                    </div>
-                </div>
+function deleteTicketDirect(id) {
+    if (confirm("Are you sure you want to cancel this flight reservation? This action is irreversible.")) {
+        const reservations = getReservations();
+        const ticketIdx = reservations.findIndex(res => res.id === id);
 
-                <!-- Wizard Steps Content -->
-                <div class="wizard-container">
-                    <!-- Step 1: Passenger Registration Form -->
-                    <div class="wizard-step active" id="wizard-step-1">
-                        <form id="passenger-form" novalidate>
-                            <div class="form-grid">
-                                <div class="form-group full-width">
-                                    <label for="reg-id"><i data-lucide="fingerprint"></i> National ID Number (11 digits)</label>
-                                    <input type="text" id="reg-id" maxlength="11" placeholder="e.g. 12345678901" required>
-                                    <span class="error-msg" id="err-id"></span>
-                                    <small class="form-hint">Must be exactly 11 digits, numbers only, and unique.</small>
-                                </div>
-                                <div class="form-group">
-                                    <label for="reg-name"><i data-lucide="user"></i> Passenger Name</label>
-                                    <input type="text" id="reg-name" maxlength="20" placeholder="e.g. John Doe" required>
-                                    <span class="error-msg" id="err-name"></span>
-                                    <small class="form-hint">Maximum 20 characters.</small>
-                                </div>
-                                <div class="form-group">
-                                    <label for="reg-gender"><i data-lucide="venus-mars"></i> Gender</label>
-                                    <select id="reg-gender" required>
-                                        <option value="" disabled selected>Select gender</option>
-                                        <option value="male">Male</option>
-                                        <option value="female">Female</option>
-                                        <option value="custom">Custom</option>
-                                    </select>
-                                    <span class="error-msg" id="err-gender"></span>
-                                </div>
-                                <div class="form-group">
-                                    <label for="reg-age"><i data-lucide="calendar"></i> Age</label>
-                                    <input type="number" id="reg-age" placeholder="e.g. 28" min="1" max="119" required>
-                                    <span class="error-msg" id="err-age"></span>
-                                    <small class="form-hint">Must be between 1 and 119 years.</small>
-                                </div>
-                                <div class="form-group">
-                                    <label for="reg-passport"><i data-lucide="contact-2"></i> Passport Number</label>
-                                    <input type="text" id="reg-passport" placeholder="e.g. 8493021" required>
-                                    <span class="error-msg" id="err-passport"></span>
-                                    <small class="form-hint">Must be digits only, at least 7 characters.</small>
-                                </div>
-                            </div>
-                            <div class="wizard-buttons">
-                                <button type="button" class="btn btn-primary" onclick="validateStep1()">
-                                    Continue to Flights <i data-lucide="arrow-right"></i>
-                                </button>
-                            </div>
-                        </form>
-                    </div>
+        if (ticketIdx !== -1) {
+            const ticket = reservations[ticketIdx];
+            
+            // Remove from database
+            reservations.splice(ticketIdx, 1);
+            saveReservations(reservations);
 
-                    <!-- Step 2: Flight & Country Selection -->
-                    <div class="wizard-step" id="wizard-step-2">
-                        <div class="destination-grid" id="destination-cards-container">
-                            <!-- Loaded Dynamically via JS -->
-                        </div>
+            // Remove seat from in-memory occupied list
+            const flightId = ticket.flight;
+            if (occupiedSeatsDb[flightId]) {
+                occupiedSeatsDb[flightId] = occupiedSeatsDb[flightId].filter(seat => seat !== ticket.seat);
+            }
 
-                        <!-- Sub-flights selection panel -->
-                        <div class="flights-selection-panel hidden" id="flights-subpanel">
-                            <h3 id="flights-country-title"><i data-lucide="plane"></i> Available Flights for Dubai</h3>
-                            <div class="flights-list" id="flights-options-list">
-                                <!-- Loaded Dynamically via JS -->
-                            </div>
-                        </div>
-
-                        <div class="wizard-buttons">
-                            <button type="button" class="btn btn-secondary" onclick="prevStep(1)">
-                                <i data-lucide="arrow-left"></i> Back to Passenger Info
-                            </button>
-                            <button type="button" class="btn btn-primary" id="btn-to-seat" disabled onclick="continueToSeatSelection()">
-                                Select Seat <i data-lucide="arrow-right"></i>
-                            </button>
-                        </div>
-                    </div>
-
-                    <!-- Step 3: Interactive Seat Selection -->
-                    <div class="wizard-step" id="wizard-step-3">
-                        <div class="seat-layout-grid">
-                            <div class="cabin-container">
-                                <div class="aircraft-cockpit">
-                                    <span class="cockpit-text">Cockpit</span>
-                                </div>
-                                <div class="aircraft-cabin">
-                                    <div class="seat-legend">
-                                        <div class="legend-item"><span class="legend-box available"></span><span>Available</span></div>
-                                        <div class="legend-item"><span class="legend-box selected"></span><span>Selected</span></div>
-                                        <div class="legend-item"><span class="legend-box occupied"></span><span>Occupied</span></div>
-                                    </div>
-                                    <div class="seat-map" id="interactive-seat-map">
-                                        <!-- Dynamically generated seats -->
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="seat-details-panel">
-                                <h3>Seating Information</h3>
-                                <div class="selected-details-box">
-                                    <div class="info-row">
-                                        <span>Flight Selected:</span>
-                                        <strong id="seat-details-flight">-</strong>
-                                    </div>
-                                    <div class="info-row">
-                                        <span>Fare Class:</span>
-                                        <strong id="seat-details-class">Economy</strong>
-                                    </div>
-                                    <div class="info-row">
-                                        <span>Chosen Seat:</span>
-                                        <strong id="seat-details-num" class="text-glow">-</strong>
-                                    </div>
-                                    <div class="info-row">
-                                        <span>Ticket Base Fare:</span>
-                                        <strong id="seat-details-fare">Rs. 0</strong>
-                                    </div>
-                                </div>
-                                <p class="seat-info-note"><i data-lucide="info"></i> Emergency exit rows have extra legroom. Seat reservations are finalized upon proceeding.</p>
-                            </div>
-                        </div>
-                        <div class="wizard-buttons">
-                            <button type="button" class="btn btn-secondary" onclick="prevStep(2)">
-                                <i data-lucide="arrow-left"></i> Back to Flights
-                            </button>
-                            <button type="button" class="btn btn-primary" id="btn-confirm-booking" disabled onclick="finalizeBooking()">
-                                Finalize & Book Ticket <i data-lucide="check-circle-2"></i>
-                            </button>
-                        </div>
-                    </div>
-
-                    <!-- Step 4: E-Ticket Boarding Pass -->
-                    <div class="wizard-step" id="wizard-step-4">
-                        <div class="ticket-celebration">
-                            <i data-lucide="party-popper" class="success-icon animate-bounce"></i>
-                            <h2>Booking Confirmed!</h2>
-                            <p>Your ticket has been generated successfully. Your boarding pass is shown below.</p>
-                        </div>
-
-                        <!-- Boarding Pass Widget -->
-                        <div class="boarding-pass" id="printable-boarding-pass">
-                            <div class="pass-header">
-                                <div class="pass-logo">
-                                    <i data-lucide="plane-takeoff"></i>
-                                    <span>NextGen Airways</span>
-                                </div>
-                                <div class="pass-class">BOARDING PASS</div>
-                            </div>
-                            <div class="pass-body">
-                                <div class="pass-col-main">
-                                    <div class="row">
-                                        <div class="info-block">
-                                            <span class="label">PASSENGER NAME</span>
-                                            <span class="value" id="pass-name">-</span>
-                                        </div>
-                                        <div class="info-block align-right">
-                                            <span class="label">NATIONAL ID</span>
-                                            <span class="value" id="pass-id">-</span>
-                                        </div>
-                                    </div>
-                                    <div class="row">
-                                        <div class="info-block">
-                                            <span class="label">FLIGHT NO</span>
-                                            <span class="value text-glow" id="pass-flight">-</span>
-                                        </div>
-                                        <div class="info-block">
-                                            <span class="label">DESTINATION</span>
-                                            <span class="value" id="pass-destination">-</span>
-                                        </div>
-                                        <div class="info-block align-right">
-                                            <span class="label">SEAT</span>
-                                            <span class="value text-glow" id="pass-seat">-</span>
-                                        </div>
-                                    </div>
-                                    <div class="row">
-                                        <div class="info-block">
-                                            <span class="label">AGE / GENDER</span>
-                                            <span class="value" id="pass-age-gender">-</span>
-                                        </div>
-                                        <div class="info-block">
-                                            <span class="label">PASSPORT NO</span>
-                                            <span class="value" id="pass-passport">-</span>
-                                        </div>
-                                        <div class="info-block align-right">
-                                            <span class="label">GATE</span>
-                                            <span class="value">G-12</span>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="pass-col-stub">
-                                    <div class="stub-header">BOARDING STUB</div>
-                                    <div class="info-block">
-                                        <span class="label">PASSENGER</span>
-                                        <span class="value stub-small" id="pass-stub-name">-</span>
-                                    </div>
-                                    <div class="info-block">
-                                        <span class="label">FLIGHT / SEAT</span>
-                                        <span class="value stub-small text-glow" id="pass-stub-flight-seat">-</span>
-                                    </div>
-                                    <div class="info-block">
-                                        <span class="label">DESTINATION</span>
-                                        <span class="value stub-small" id="pass-stub-dest">-</span>
-                                    </div>
-                                    <div class="info-block">
-                                        <span class="label">PRICE</span>
-                                        <span class="value stub-small" id="pass-stub-price">-</span>
-                                    </div>
-                                    <div class="barcode-area">
-                                        <div class="barcode"></div>
-                                        <span class="barcode-text" id="pass-stub-barcode">NG-00000000000</span>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="wizard-buttons print-hidden">
-                            <button type="button" class="btn btn-secondary" onclick="printBoardingPass()">
-                                <i data-lucide="printer"></i> Print / Save Boarding Pass
-                            </button>
-                            <button type="button" class="btn btn-primary" onclick="restartBookingFlow(true)">
-                                Book Another Flight <i data-lucide="user-plus"></i>
-                            </button>
-                            <button type="button" class="btn btn-accent" onclick="switchView('dashboard')">
-                                Go to Dashboard <i data-lucide="layout-dashboard"></i>
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            </section>
-
-            <!-- Manage Reservations / Cancellation View -->
-            <section id="view-cancellation" class="content-view">
-                <div class="page-title-section">
-                    <h2>Manage Reservations</h2>
-                    <p>Retrieve, review, or cancel existing flight bookings quickly using passenger details.</p>
-                </div>
-
-                <div class="cancellation-grid">
-                    <!-- Retrieval Form -->
-                    <div class="grid-card">
-                        <h3>Search & Retrieve Ticket</h3>
-                        <div class="form-group mt-4">
-                            <label for="search-id"><i data-lucide="search"></i> Enter Passenger 11-digit ID</label>
-                            <div class="search-input-group">
-                                <input type="text" id="search-id" maxlength="11" placeholder="e.g. 12345678901">
-                                <button class="btn btn-primary" onclick="searchTicket()">Search</button>
-                            </div>
-                            <span class="error-msg" id="err-search-id"></span>
-                        </div>
-                    </div>
-
-                    <!-- Search Result Card -->
-                    <div class="grid-card hidden" id="search-result-card">
-                        <h3>Reservation Found</h3>
-                        <div class="ticket-summary-box">
-                            <div class="summary-row"><span>Passenger Name:</span><strong id="res-name">-</strong></div>
-                            <div class="summary-row"><span>National ID:</span><strong id="res-id">-</strong></div>
-                            <div class="summary-row"><span>Destination:</span><strong id="res-dest">-</strong></div>
-                            <div class="summary-row"><span>Flight ID:</span><strong id="res-flight">-</strong></div>
-                            <div class="summary-row"><span>Assigned Seat:</span><strong id="res-seat">-</strong></div>
-                            <div class="summary-row"><span>Fare Charges:</span><strong id="res-charges">-</strong></div>
-                            <div class="summary-row"><span>Passport No:</span><strong id="res-passport">-</strong></div>
-                        </div>
-                        <div class="action-buttons-row mt-4">
-                            <button class="btn btn-danger" id="btn-cancel-reservation">
-                                <i data-lucide="trash-2"></i> Cancel Reservation
-                            </button>
-                            <button class="btn btn-secondary" id="btn-print-from-search">
-                                <i data-lucide="printer"></i> View Boarding Pass
-                            </button>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Rebook Option Modal (Simulated in UI) -->
-                <div id="rebook-dialog" class="custom-dialog-backdrop hidden">
-                    <div class="custom-dialog">
-                        <h3>Booking Canceled Successfully</h3>
-                        <p>Would you like to book another flight for this passenger using the same details?</p>
-                        <div class="dialog-buttons">
-                            <button class="btn btn-primary" onclick="triggerRebook(true)">Yes, Keep Details</button>
-                            <button class="btn btn-secondary" onclick="triggerRebook(false)">No, Exit</button>
-                        </div>
-                    </div>
-                </div>
-            </section>
-
-            <!-- Ticket Database View -->
-            <section id="view-database" class="content-view">
-                <div class="page-title-section">
-                    <h2>Ticket Database</h2>
-                    <p>Real-time audit log of all registered passenger reservations, seating coordinates, and revenue data.</p>
-                </div>
-
-                <div class="grid-card">
-                    <!-- Filters Toolbar -->
-                    <div class="toolbar">
-                        <div class="filter-group">
-                            <label for="db-search"><i data-lucide="search"></i> Search ID/Name</label>
-                            <input type="text" id="db-search" placeholder="Type here to search..." oninput="filterDatabase()">
-                        </div>
-                        <div class="filter-group">
-                            <label for="db-filter-dest"><i data-lucide="map-pin"></i> Destination</label>
-                            <select id="db-filter-dest" onchange="filterDatabase()">
-                                <option value="">All Destinations</option>
-                                <option value="Dubai">Dubai</option>
-                                <option value="Canada">Canada</option>
-                                <option value="UK">UK</option>
-                                <option value="USA">USA</option>
-                                <option value="Australia">Australia</option>
-                                <option value="Europe">Europe</option>
-                            </select>
-                        </div>
-                        <button class="btn btn-secondary clear-filters-btn" onclick="clearDbFilters()">
-                            Reset Filters
-                        </button>
-                    </div>
-
-                    <!-- Database Table -->
-                    <div class="table-container mt-4">
-                        <table class="data-table">
-                            <thead>
-                                <tr>
-                                    <th>ID</th>
-                                    <th>Passenger Name</th>
-                                    <th>Gender</th>
-                                    <th>Age</th>
-                                    <th>Passport</th>
-                                    <th>Destination</th>
-                                    <th>Flight</th>
-                                    <th>Seat</th>
-                                    <th>Fare</th>
-                                    <th>Actions</th>
-                                </tr>
-                            </thead>
-                            <tbody id="database-table-body">
-                                <tr>
-                                    <td colspan="10" class="text-center text-muted">No tickets booked yet.</td>
-                                </tr>
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-            </section>
-        </main>
-    </div>
-
-    <!-- Notification system toast element -->
-    <div id="toast" class="toast hidden"></div>
-
-    <script src="app.js"></script>
-</body>
-</html>
+            // Sync
+            updateDashboardStats();
+            renderPopularityChart();
+            renderDatabaseTable();
+            showToast("Reservation canceled successfully.", "success");
+        }
+    }
+}
